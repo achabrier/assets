@@ -172,7 +172,7 @@ tuple TResult {
 execute POPULATE_RESULTS{
     var delta = 0;
  	writeln("POPULATE_RESULTS"); 
-    if(parameter.isPreviousPriceApplied == 1){
+    if(isPreviousPriceApplied == 1){
 		for(var c in customers){
 			result.add(c,volumeIfPrevPriceAppliedPerCust[c],previousPrice[c],previousPrice[c],0);
 		}

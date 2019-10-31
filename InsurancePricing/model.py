@@ -148,7 +148,7 @@ mdl.print_solution()
 result = None
 if isPreviousPriceApplied==0:
     result = [ [c,volumeIfPrevPriceAppliedPerCust[c],previousPrice[c],previousPrice[c], 0] for c in customers ]
-else
+else:
     result = [ [c,volumePerCust[c].solution_value,priceApplied[c].solution_value,previousPrice[c], priceApplied[c].solution_value - previousPrice[c]] for c in customers ]
 outputs['result'] = pd.DataFrame(data=result, columns=['customer', 'volume', 'price', 'previousPrice', 'delta'])
 

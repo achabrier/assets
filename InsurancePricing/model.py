@@ -24,6 +24,8 @@ isVolumeCstActive = parameters.value["isVolumeCstActive"];
 isAvgPriceIncActive = parameters.value["isAvgPriceIncActive"];
 isRevCstActive = parameters.value["isRevCstActive"];
 
+isPreviousPriceApplied = parameters.value["isPreviousPriceApplied"];
+
 revenueWeight = weights.value["revenue"];
 volumeWeight = weights.value["volume"];
 avgIncWeight = weights.value["avgInc"];
@@ -61,6 +63,18 @@ for c in customers:
             tauPrevUpp[c] = uppIndex.probability;
             pricePrevLow[c] = lowIndex.price;
             pricePrevUpp[c] = uppIndex.price;
+            
+
+revenueIfPrevPriceAppliedPerCust = {}
+volumeIfPrevPriceAppliedPerCust = {}
+for c in customers:
+    revenueIfPrevPriceAppliedPerCust[c] = lambdaPrev[c] * pricePrevLow[c] * tauPrevLow[c] + (1-lambdaPrev[c])*pricePrevUpp[c] * tauPrevUpp[c];
+    volumeIfPrevPriceAppliedPerCust[c] = lambdaPrev[c] * tauPrevLow[c] + (1-lambdaPrev[c])*tauPrevUpp[c];
+    
+revenueIfPrevPriceApplied = sum(revenueIfPrevPriceAppliedPerCust[c] for c in customers);
+volumeIfPrevPriceApplied = sum(volumeIfPrevPriceAppliedPerCust[c] for c in customers);
+previousRevenue = sum(previousPrice[c] for c in customers);
+            
 #dd-cell
 # Create new model
 
@@ -102,25 +116,25 @@ mdl.minimize(resRevenue + resVolume + resAvgPriceIncrease)
 mdl.print_information()
 #dd-cell
 # Create constraints
- 
-for c in customers:
-    for pi in priceIndiceSubset:
-        mdl.add_constraint(lambda1[c, pi] + lambda2[c, pi] - z[c, pi] == 0, 'ctConvexityCondition')
+if isPreviousPriceApplied==0:
+    for c in customers:
+        for pi in priceIndiceSubset:
+            mdl.add_constraint(lambda1[c, pi] + lambda2[c, pi] - z[c, pi] == 0, 'ctConvexityCondition')
 
-for c in customers:
-    mdl.add_constraint( mdl.sum(z[c, pi] for pi in priceIndiceSubset) ==1, 'ctSinglePrice')        
-    mdl.add_constraint( priceApplied[c] >= ranges.lowerBound[c], 'ctLowerPrice')
-    mdl.add_constraint( priceApplied[c] <= ranges.upperBound[c], 'ctUpperPrice')
+    for c in customers:
+        mdl.add_constraint( mdl.sum(z[c, pi] for pi in priceIndiceSubset) ==1, 'ctSinglePrice')        
+        mdl.add_constraint( priceApplied[c] >= ranges.lowerBound[c], 'ctLowerPrice')
+        mdl.add_constraint( priceApplied[c] <= ranges.upperBound[c], 'ctUpperPrice')
 
-if isVolumeCstActive == 1:
-    mdl.add_constraint( volume>=volumeBound, 'ctVolume' )
+    if isVolumeCstActive == 1:
+        mdl.add_constraint( volume>=volumeBound, 'ctVolume' )
 
-if isAvgPriceIncActive == 1:
-    mdl.add_constraint( averagePriceIncrease <= maxAvgPriceIncrease, 'ctAveragePriceIncrease')
+    if isAvgPriceIncActive == 1:
+        mdl.add_constraint( averagePriceIncrease <= maxAvgPriceIncrease, 'ctAveragePriceIncrease')
 
-if isRevCstActive == 1:
-    mdl.add_constraint(revenue >= minRevenue, 'ctRevenueMin')
-        
+    if isRevCstActive == 1:
+        mdl.add_constraint(revenue >= minRevenue, 'ctRevenueMin')
+
 mdl.print_information()        
 #dd-cell
 # solve
@@ -130,10 +144,16 @@ ok = mdl.solve()
 mdl.print_solution()
 #dd-cell
 # Some post processing
- 
-result = [ [c,volumePerCust[c].solution_value,priceApplied[c].solution_value,previousPrice[c], priceApplied[c].solution_value - previousPrice[c]] for c in customers ]
+
+result = None
+if isPreviousPriceApplied==0:
+    result = [ [c,volumeIfPrevPriceAppliedPerCust[c],previousPrice[c],previousPrice[c], 0] for c in customers ]
+else
+    result = [ [c,volumePerCust[c].solution_value,priceApplied[c].solution_value,previousPrice[c], priceApplied[c].solution_value - previousPrice[c]] for c in customers ]
 outputs['result'] = pd.DataFrame(data=result, columns=['customer', 'volume', 'price', 'previousPrice', 'delta'])
 
 outputs['objective'] = pd.DataFrame(data=[[revenue.solution_value,volume.solution_value,averagePriceIncrease.solution_value]], columns=['Revenue','Volume','AvgPriceIncrease'])
  
  
+#dd-cell
+

@@ -1,4 +1,5 @@
 name,value
+isPreviousPriceApplied,0
 isVolumeCstActive,0
 minVolume,0
 isAvgPriceIncActive,0

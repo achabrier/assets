@@ -44,6 +44,8 @@ int isVolumeCstActive = ftoi(item(parameters, <"isVolumeCstActive">).value);
 int isAvgPriceIncActive = ftoi(item(parameters, <"isAvgPriceIncActive">).value);
 int isRevCstActive = ftoi(item(parameters, <"isRevCstActive">).value);
 
+int isPreviousPriceApplied = ftoi(item(parameters, <"isPreviousPriceApplied">).value);
+
 float revenueWeight = item(weights, <"revenue">).value;
 float volumeWeight = item(weights, <"volume">).value;
 float avgIncWeight = item(weights, <"avgInc">).value;
@@ -98,6 +100,13 @@ dexpr float volume = sum(c in customers)(volumePerCust[c]);
 dexpr float priceApplied[c in customers] = sum(pi in priceIndiceSubset)(lambda1[c][pi]*price[c][pi] + lambda2[c][pi]*price[c][pi+1]);
 dexpr float averagePriceIncrease = sum(c in customers)((priceApplied[c]-previousPrice[c])/previousPrice[c])/card(customers);
 
+dexpr float revenueIfPrevPriceAppliedPerCust[c in customers] = lambdaPrev[c] * pricePrevLow[c] * tauPrevLow[c] +
+ 		 (1-lambdaPrev[c])*pricePrevUpp[c] * tauPrevUpp[c];
+dexpr float revenueIfPrevPriceApplied = sum(c in customers)(revenueIfPrevPriceAppliedPerCust[c]);
+dexpr float volumeIfPrevPriceAppliedPerCust[c in customers] = lambdaPrev[c] * tauPrevLow[c] + (1-lambdaPrev[c])*tauPrevUpp[c];
+dexpr float volumeIfPrevPriceApplied = sum(c in customers)(volumeIfPrevPriceAppliedPerCust[c]);
+dexpr float previousRevenue = sum(c in customers)(previousPrice[c]);
+
  
 dexpr float resRevenue = - revenueWeight * revenue;
 dexpr float resVolume = - volumeWeight * volume ;
@@ -106,37 +115,37 @@ dexpr float resAvgPriceIncrease = avgIncWeight * averagePriceIncrease;
 minimize resRevenue + resVolume + resAvgPriceIncrease;
  
 subject to{
-
- 	forall( c in customers, pi in priceIndiceSubset){
-        ctConvexityCondition:
- 	 	    lambda1[c][pi] + lambda2[c][pi] - z[c][pi] == 0;
- 	}
- 	forall(c in customers){
- 		ctSinglePrice:
- 		    sum(pi in priceIndiceSubset)(z[c][pi]) == 1;
- 	}
- 	forall(c in customers){
- 		ctLowerPrice:
- 		    priceApplied[c] >= ranges[c].lowerBound;
- 		ctUpperPrice:
- 		    priceApplied[c] <= ranges[c].upperBound;
- 	}
- 
-	if(isVolumeCstActive == 1){
-		ctVolume:
- 		    volume>=volumeBound;
+	if (isPreviousPriceApplied == 0){
+     	forall( c in customers, pi in priceIndiceSubset){
+            ctConvexityCondition:
+     	 	    lambda1[c][pi] + lambda2[c][pi] - z[c][pi] == 0;
+     	}
+     	forall(c in customers){
+     		ctSinglePrice:
+     		    sum(pi in priceIndiceSubset)(z[c][pi]) == 1;
+     	}
+     	forall(c in customers){
+     		ctLowerPrice:
+     		    priceApplied[c] >= ranges[c].lowerBound;
+     		ctUpperPrice:
+     		    priceApplied[c] <= ranges[c].upperBound;
+     	}
+     
+    	if(isVolumeCstActive == 1){
+    		ctVolume:
+     		    volume>=volumeBound;
+    	}
+    
+    	if(isAvgPriceIncActive == 1){
+    		ctAveragePriceIncrease:				
+    		    averagePriceIncrease <= maxAvgPriceIncrease;	
+    	}
+    	
+    	if(isRevCstActive == 1){
+    		ctRevenueMin:				
+    		    revenue >= minRevenue;	
+    	}
 	}
-
-	if(isAvgPriceIncActive == 1){
-		ctAveragePriceIncrease:				
-		    averagePriceIncrease <= maxAvgPriceIncrease;	
-	}
-	
-	if(isRevCstActive == 1){
-		ctRevenueMin:				
-		    revenue >= minRevenue;	
-	}
-	
  }
  
  
@@ -163,10 +172,17 @@ tuple TResult {
 execute POPULATE_RESULTS{
     var delta = 0;
  	writeln("POPULATE_RESULTS"); 
-    for(var c in customers){
-	    delta = priceApplied[c] - previousPrice[c];
- 	    result.add(c,volumePerCust[c],priceApplied[c],previousPrice[c],delta);
- 	}
+    if(parameter.isPreviousPriceApplied == 1){
+		for(var c in customers){
+			result.add(c,volumeIfPrevPriceAppliedPerCust[c],previousPrice[c],previousPrice[c],0);
+		}
+    } 	 	 	 
+ 	else{
+		for(var c in customers){
+			delta = priceApplied[c] - previousPrice[c];
+			result.add(c,volumePerCust[c],priceApplied[c],previousPrice[c],delta);
+		}
+ 	 }
 }
  
 

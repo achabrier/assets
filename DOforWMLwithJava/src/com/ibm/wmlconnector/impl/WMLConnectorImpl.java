@@ -27,6 +27,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         super(apikey);
         this.url = url;
         this.instance_id = instance_id;
+        lookupBearerToken();
     }
 
 
@@ -100,7 +101,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
     }
 
     @Override
-    public WMLJob createJob(String deployment_id, JSONArray input_data) {
+    public WMLJob createJob(String deployment_id, JSONArray input_data, JSONArray output_data_references) {
 
         try {
             JSONObject payload = new JSONObject();
@@ -113,15 +114,20 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             JSONObject solve_parameters = new JSONObject();
             solve_parameters.put("oaas.logAttachmentName", "log.txt");
             solve_parameters.put("oaas.logTailEnabled", "true");
-            payload.put("solve_parameters", solve_parameters);
+            decision_optimization.put("solve_parameters", solve_parameters);
 
             decision_optimization.put("input_data", input_data);
 
-            JSONArray output_data = new JSONArray();
-            JSONObject out = new JSONObject();
-            out.put("id", ".*\\.csv");
-            output_data.put(out);
-            decision_optimization.put("output_data", output_data);
+            if (output_data_references == null) {
+                JSONArray output_data = new JSONArray();
+                JSONObject out = new JSONObject();
+                out.put("id", ".*\\.csv");
+                output_data.put(out);
+                decision_optimization.put("output_data", output_data);
+            } else {
+                decision_optimization.put("output_data_references", output_data_references);
+            }
+
             payload.put("decision_optimization", decision_optimization);
 
             HashMap<String, String> headers = new HashMap<String, String>();

@@ -35,7 +35,7 @@ public abstract class ConnectorImpl {
         return bearerToken;
     }
 
-    public void lookupAsynchDearerToken()  {
+    public void lookupBearerToken()  {
         // Cloud
         LOGGER.info("Lookup Bearer Token from IAM (ASYNCH)");
         HashMap<String, String> headers = new HashMap<String, String>();

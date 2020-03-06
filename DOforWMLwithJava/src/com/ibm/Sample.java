@@ -12,8 +12,8 @@ import com.ibm.wmlconnector.impl.WMLConnectorImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class Main {
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+public class Sample {
+    private static final Logger LOGGER = Logger.getLogger(Sample.class.getName());
 
     private static final String WML_URL = "https://us-south.ml.cloud.ibm.com";
     private static final String WML_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
@@ -186,7 +186,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Main main = new Main();
+        Sample main = new Sample();
 
         //main.createAndDeployDietPythonModel();
 

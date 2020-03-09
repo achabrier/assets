@@ -29,6 +29,15 @@ public class COSConnectorImpl extends ConnectorImpl implements COSConnector {
 
 
     @Override
+    public void putFile(String fileName, String filePath) {
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("Authorization", "bearer " + bearerToken);
+        headers.put("Content-Type", "text/plain");
+
+        doPut(url + "/" + bucket + "/" + fileName, headers, getFileContent(filePath));
+    }
+
+    @Override
     public String getFile(String fileName) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
@@ -42,7 +51,7 @@ public class COSConnectorImpl extends ConnectorImpl implements COSConnector {
     }
 
     @Override
-    public JSONObject getOutputDataReferences(String id) {
+    public JSONObject getDataReferences(String id) {
         String data = "{\n" +
                         "\"id\": \"" + id + "\",\n" +
                         "\"type\": \"s3\",\n" +
@@ -59,4 +68,6 @@ public class COSConnectorImpl extends ConnectorImpl implements COSConnector {
         JSONObject jsonData  = new JSONObject(data);
         return jsonData;
     }
+
+
 }

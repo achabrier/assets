@@ -1,12 +1,10 @@
 package com.ibm.wmlconnector.impl;
 
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -217,6 +215,31 @@ public abstract class ConnectorImpl {
 
     String doDelete(String targetUrl, Map<String, String> headers) {
         return doCall(targetUrl, headers, (String)null, "DELETE");
+    }
+
+
+
+    public static byte[] getBinaryFileContent(String inputFilename)  {
+        byte[] encoded = new byte[0];
+        try {
+            encoded = Files.readAllBytes(Paths.get(inputFilename));
+        } catch (IOException e) {
+            LOGGER.severe("Error getting binary file" + e.getStackTrace());
+        }
+        return encoded;
+    }
+
+    public static String getFileContent(String inputFilename)  {
+        String res = "";
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(inputFilename));
+            for (Iterator<String> it = lines.iterator(); it.hasNext();)
+                res += it.next() + "\n";
+        } catch (IOException e) {
+            LOGGER.severe("Error getting binary file" + e.getStackTrace());
+        }
+
+        return res;
     }
 
 }

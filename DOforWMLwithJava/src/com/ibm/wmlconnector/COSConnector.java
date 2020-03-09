@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 public interface COSConnector {
     public void lookupBearerToken();
-    public JSONObject getOutputDataReferences(String id);
+    public JSONObject getDataReferences(String id);
+    public void putFile(String fileName, String fileContent);
     public String getFile(String fileName);
 }

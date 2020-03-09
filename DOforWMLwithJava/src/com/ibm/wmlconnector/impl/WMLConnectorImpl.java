@@ -101,7 +101,11 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
     }
 
     @Override
-    public WMLJob createJob(String deployment_id, JSONArray input_data, JSONArray output_data_references) {
+    public WMLJob createJob(String deployment_id,
+                            JSONArray input_data,
+                            JSONArray input_data_references,
+                            JSONArray output_data,
+                            JSONArray output_data_references) {
 
         try {
             JSONObject payload = new JSONObject();
@@ -114,19 +118,30 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             JSONObject solve_parameters = new JSONObject();
             solve_parameters.put("oaas.logAttachmentName", "log.txt");
             solve_parameters.put("oaas.logTailEnabled", "true");
+            solve_parameters.put("oaas.resultsFormat", "JSON");
             decision_optimization.put("solve_parameters", solve_parameters);
 
-            decision_optimization.put("input_data", input_data);
+            if (input_data != null)
+                decision_optimization.put("input_data", input_data);
 
-            if (output_data_references == null) {
-                JSONArray output_data = new JSONArray();
+            if (input_data_references != null)
+                decision_optimization.put("input_data_references", input_data_references);
+
+
+            if (output_data != null)
+                decision_optimization.put("output_data", output_data);
+
+            if ((output_data == null) && (output_data_references == null)) {
+                output_data = new JSONArray();
                 JSONObject out = new JSONObject();
                 out.put("id", ".*\\.csv");
                 output_data.put(out);
                 decision_optimization.put("output_data", output_data);
-            } else {
-                decision_optimization.put("output_data_references", output_data_references);
             }
+
+            if (output_data_references != null)
+                decision_optimization.put("output_data_references", output_data_references);
+
 
             payload.put("decision_optimization", decision_optimization);
 
@@ -152,15 +167,6 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         return null;
     }
 
-    public static byte[] getBinaryFileContent(String inputFilename)  {
-        byte[] encoded = new byte[0];
-        try {
-            encoded = Files.readAllBytes(Paths.get(inputFilename));
-        } catch (IOException e) {
-            LOGGER.severe("Error getting binary file" + e.getStackTrace());
-        }
-        return encoded;
-    }
 
     //type = do-opl_12.9
     //modelAssetFilePath = src/resources/OPL/production_cloud_mods.zip
@@ -193,9 +199,11 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             headers.put("cache-control", "no-cache");
 
 
-            byte[] bytes = getBinaryFileContent(modelAssetFilePath);
+            if (modelAssetFilePath != null) {
+                byte[] bytes = getBinaryFileContent(modelAssetFilePath);
 
-            doPut(url + "/v4/models/"+modelId+"/content", headers, bytes);
+                doPut(url + "/v4/models/" + modelId + "/content", headers, bytes);
+            }
         }
 
         return modelId;

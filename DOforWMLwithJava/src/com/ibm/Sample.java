@@ -16,12 +16,12 @@ public class Sample {
     private static final Logger LOGGER = Logger.getLogger(Sample.class.getName());
 
     private static final String WML_URL = "https://us-south.ml.cloud.ibm.com";
-    private static final String WML_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String WML_INSTANCE_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String WML_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String WML_INSTANCE_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
-    private static final String COS_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String COS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String COS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 
     private static final String COS_ENDPOINT = "https://s3.eu-gb.cloud-object-storage.appdomain.cloud";
@@ -80,12 +80,16 @@ public class Sample {
 
 
 
-    public void createAndRunJobOnExistingDeployment(String deployment_id, JSONArray input_data, JSONArray output_data_references) {
+    public void createAndRunJobOnExistingDeployment(String deployment_id,
+                                                    JSONArray input_data,
+                                                    JSONArray input_data_references,
+                                                    JSONArray output_data,
+                                                    JSONArray output_data_references) {
 
         LOGGER.info("Create and run job");
 
         WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
-        WMLJob job  = wml.createJob(deployment_id, input_data, output_data_references);
+        WMLJob job  = wml.createJob(deployment_id, input_data, input_data_references, output_data, output_data_references);
         String state = null;
         do {
             try {
@@ -117,16 +121,31 @@ public class Sample {
         if (state.equals("failed"))
             LOGGER.severe("Job failed.");
         else {
-            JSONArray output_data = job.extractOutputData();
+            output_data = job.extractOutputData();
             LOGGER.info("output_data = " + output_data);
         }
 
     }
 
+    public String createAndDeployEmptyModel() {
+
+        LOGGER.info("Create Empty Model");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
+
+        String model_id = wml.createNewModel("EmptyModel","do-cplex_12.9", null);
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("empty-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        return deployment_id;
+    }
+
 
     public String createAndDeployDietPythonModel() {
 
-        LOGGER.info("Create Pyhton Model");
+        LOGGER.info("Create Python Model");
 
         WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
 
@@ -155,11 +174,11 @@ public class Sample {
 
         String deployment_id = createAndDeployDietPythonModel();
         JSONArray input_data = getDietData();
-        createAndRunJobOnExistingDeployment(deployment_id, input_data, null);
+        createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, null);
 
     }
 
-    public void fullDietFlow(boolean useOutputDataReferences) {
+    public void fullDietPythonFlow(boolean useOutputDataReferences) {
 
         LOGGER.info("Full flow with Diet");
 
@@ -169,9 +188,24 @@ public class Sample {
         if (useOutputDataReferences) {
             COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
             output_data_references = new JSONArray();
-            output_data_references.put(cos.getOutputDataReferences("log.txt"));
+            output_data_references.put(cos.getDataReferences("log.txt"));
         }
-        createAndRunJobOnExistingDeployment(deployment_id, input_data, output_data_references);
+        createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, output_data_references);
+        deleteDeployment(deployment_id);
+    }
+
+    public void fullDietLPFLow() {
+        String deployment_id = createAndDeployEmptyModel();
+        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
+        cos.putFile("diet.lp", "src/resources/diet.lp");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("diet.lp"));
+        JSONArray output_data_references = new JSONArray();
+        output_data_references.put(cos.getDataReferences("solution.json"));
+        output_data_references.put(cos.getDataReferences("log.txt"));
+        createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        getLog();
+        getSolution();
         deleteDeployment(deployment_id);
     }
 
@@ -185,27 +219,24 @@ public class Sample {
         LOGGER.info("Log: " + log);
     }
 
+    public void getSolution() {
+
+        LOGGER.info("Get log");
+        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
+        String log = cos.getFile("solution.json");
+
+        log = log.replaceAll("\\r", "\n");
+        LOGGER.info("Log: " + log);
+    }
+
+
     public static void main(String[] args) {
         Sample main = new Sample();
 
-        //main.createAndDeployDietPythonModel();
 
+        main.fullDietPythonFlow(true);
 
- /*
-        String deployment_id = "c23b824d-80f8-4117-8441-1313a9ad77f9";
-        JSONArray input_data = getDietData();
-        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
-        JSONArray output_data_references = new JSONArray();
-        output_data_references.put(cos.getOutputDataReferences("log.txt"));
-        main.createAndRunJobOnExistingDeployment(deployment_id, input_data, output_data_references);
-
-        main.getLog();
-*/
-//        main.deleteDeployment(deployment_id);
-
-        main.fullDietFlow(true);
-        main.getLog();
-
+//        main.fullDietLPFLow();
 
     }
 }

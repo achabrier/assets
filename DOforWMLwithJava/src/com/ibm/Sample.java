@@ -16,12 +16,12 @@ public class Sample {
     private static final Logger LOGGER = Logger.getLogger(Sample.class.getName());
 
     private static final String WML_URL = "https://us-south.ml.cloud.ibm.com";
-    private static final String WML_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String WML_INSTANCE_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String WML_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String WML_INSTANCE_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
-    private static final String COS_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String COS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-    private static final String COS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_APIKEY  = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static final String COS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 
     private static final String COS_ENDPOINT = "https://s3.eu-gb.cloud-object-storage.appdomain.cloud";
@@ -127,16 +127,31 @@ public class Sample {
 
     }
 
-    public String createAndDeployEmptyModel() {
+    public String createAndDeployEmptyCPOModel() {
 
-        LOGGER.info("Create Empty Model");
+        LOGGER.info("Create Empty CPO Model");
 
         WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
 
-        String model_id = wml.createNewModel("EmptyModel","do-cplex_12.9", null);
+        String model_id = wml.createNewModel("EmptyCPOModel","do-cpo_12.9", null);
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("empty-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("empty-cpo-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        return deployment_id;
+    }
+
+    public String createAndDeployEmptyCPLEXModel() {
+
+        LOGGER.info("Create Empty CPLEX Model");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
+
+        String model_id = wml.createNewModel("EmptyCPLEXModel","do-cplex_12.9", null);
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("empty-cplex-test-wml-2", wml.getModelHref(model_id, false),"S",1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -162,19 +177,8 @@ public class Sample {
 
         LOGGER.info("Delete deployment");
 
-
         WMLConnectorImpl wml = new WMLConnectorImpl(WML_URL, WML_INSTANCE_ID, WML_APIKEY);
         wml.deleteDeployment(deployment_id);
-
-    }
-
-    public void createDeployAndRunDietPythonModel() {
-
-        LOGGER.info("Full flow with Diet");
-
-        String deployment_id = createAndDeployDietPythonModel();
-        JSONArray input_data = getDietData();
-        createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, null);
 
     }
 
@@ -191,11 +195,14 @@ public class Sample {
             output_data_references.put(cos.getDataReferences("log.txt"));
         }
         createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLog();
+        }
         deleteDeployment(deployment_id);
     }
 
     public void fullDietLPFLow() {
-        String deployment_id = createAndDeployEmptyModel();
+        String deployment_id = createAndDeployEmptyCPLEXModel();
         COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
         cos.putFile("diet.lp", "src/resources/diet.lp");
         JSONArray input_data_references = new JSONArray();
@@ -210,33 +217,64 @@ public class Sample {
     }
 
     public void getLog() {
-
-        LOGGER.info("Get log");
-        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
-        String log = cos.getFile("log.txt");
-
-        log = log.replaceAll("\\r", "\n");
-        LOGGER.info("Log: " + log);
+        getFile("log.txt");
     }
 
     public void getSolution() {
-
-        LOGGER.info("Get log");
-        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
-        String log = cos.getFile("solution.json");
-
-        log = log.replaceAll("\\r", "\n");
-        LOGGER.info("Log: " + log);
+        getFile("solution.json");
     }
 
+    public void getFile(String fileName) {
+
+        LOGGER.info("Get " + fileName);
+        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
+        String log = cos.getFile(fileName);
+
+        log = log.replaceAll("\\r", "\n");
+        LOGGER.info(fileName+": " + log);
+    }
+
+    public void fullInfeasibleLPFLow() {
+        String deployment_id = createAndDeployEmptyCPLEXModel();
+        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
+        cos.putFile("infeasible.lp", "src/resources/infeasible.lp");
+        cos.putFile("infeasible.feasibility", "src/resources/infeasible.feasibility");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("infeasible.lp"));
+        input_data_references.put(cos.getDataReferences("infeasible.feasibility"));
+        JSONArray output_data_references = new JSONArray();
+        output_data_references.put(cos.getDataReferences("log.txt"));
+        output_data_references.put(cos.getDataReferences("conflict.json"));
+        createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        getLog();
+        getFile("conflict.json");
+        deleteDeployment(deployment_id);
+    }
+
+    public void fullCPOFLow() {
+        String deployment_id = createAndDeployEmptyCPOModel();
+        COSConnector cos = new COSConnectorImpl(COS_ENDPOINT, COS_APIKEY, COS_BUCKET, COS_ACCESS_KEY_ID, COS_SECRET_ACCESS_KEY);
+        cos.putFile("plant_location.cpo", "src/resources/plant_location.cpo");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("plant_location.cpo"));
+        JSONArray output_data_references = new JSONArray();
+        output_data_references.put(cos.getDataReferences("log.txt"));
+        output_data_references.put(cos.getDataReferences("solution.json"));
+        createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        getLog();
+        getFile("solution.json");
+        deleteDeployment(deployment_id);
+    }
 
     public static void main(String[] args) {
         Sample main = new Sample();
 
 
         main.fullDietPythonFlow(true);
-
 //        main.fullDietLPFLow();
+//        main.fullInfeasibleLPFLow();
+//        main.fullCPOFLow();
+
 
     }
 }

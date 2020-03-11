@@ -133,9 +133,12 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
 
             if ((output_data == null) && (output_data_references == null)) {
                 output_data = new JSONArray();
-                JSONObject out = new JSONObject();
-                out.put("id", ".*\\.csv");
-                output_data.put(out);
+                JSONObject outcsv = new JSONObject();
+                outcsv.put("id", ".*\\.csv");
+                output_data.put(outcsv);
+                JSONObject outtxt = new JSONObject();
+                outtxt.put("id", ".*\\.txt");
+                output_data.put(outtxt);
                 decision_optimization.put("output_data", output_data);
             }
 

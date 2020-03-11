@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="oplall">
+    <CLASSES>
+      <root url="jar://C:/ilog/CPLEX_Studio1210/opl/lib/oplall.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

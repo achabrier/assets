@@ -355,22 +355,33 @@ public class Sample {
         return deployment_id;
     }
 
-    public void fullDietOPLFlow(boolean useOutputDataReferences) {
+    public void fullDietOPLFlow(boolean useDat, boolean useOutputDataReferences) {
 
         LOGGER.info("Full Diet with OPL");
 
         String deployment_id = createAndDeployDietOPLModel();
         COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
-        cos.putFile("diet.dat", "src/resources/diet.dat");
-        JSONArray input_data_references = new JSONArray();
-        input_data_references.put(cos.getDataReferences("diet.dat"));
+        JSONArray input_data = null;
+        JSONArray input_data_references = null;
+        if (useDat) {
+            cos.putFile("diet.dat", "src/resources/diet.dat");
+            input_data_references = new JSONArray();
+            input_data_references.put(cos.getDataReferences("diet.dat"));
+        } else {
+            input_data = new JSONArray();
+            input_data.put(createDataFromCSV("diet_food.csv"));
+            input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
+            input_data.put(createDataFromCSV("diet_nutrients.csv"));
+        }
         JSONArray output_data_references = null;
         if (useOutputDataReferences) {
             output_data_references = new JSONArray();
             output_data_references.put(cos.getDataReferences("log.txt"));
             output_data_references.put(cos.getDataReferences("solution.json"));
+        } else {
+
         }
-        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, input_data, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
             getLogFromCOS();
             getSolutionFromCOS();
@@ -390,7 +401,7 @@ public class Sample {
 //        main.fullCPOFLow();
 
         //main.fullWarehouseOPLFlow(true);
-        main.fullDietOPLFlow(true);
+        main.fullDietOPLFlow( false, false);
 
         //main.runCPO("colors");
         //main.runCPO("plant_location");

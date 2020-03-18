@@ -24,14 +24,14 @@ tuple Nutrient
 
 tuple food_nutrients
 {
-    key string name;
-    float q1;
-    float q2;
-    float q3;
-    float q4;
-    float q5;
-    float q6;
-    float q7;
+    key string Food;
+    float Calories;
+    float Calcium; 
+    float Iron;
+    float Vit_A;
+    float Dietary_Fiber;
+    float Carbohydrates;
+    float Protein;
 }
 
 {food_nutrients} diet_food_nutrients=...;
@@ -43,7 +43,7 @@ execute
 {
 for(var fn in diet_food_nutrients)
     for(var n in diet_nutrients)
-        array_food_nutrients[diet_food.find(fn.name)][n]=fn[fn.getFieldName(1+Opl.ord(diet_nutrients,n))];
+        array_food_nutrients[diet_food.find(fn.Food)][n]=fn[fn.getFieldName(1+Opl.ord(diet_nutrients,n))];
 }
 
 // Decision variables

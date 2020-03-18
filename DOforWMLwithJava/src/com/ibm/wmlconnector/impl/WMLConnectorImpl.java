@@ -160,6 +160,8 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             JSONObject json = new JSONObject(res);
             String jobId = (String)((JSONObject)json.get("metadata")).get("guid");
 
+            LOGGER.info("job_id = "+ jobId);
+
             return new WMLJobImpl(deployment_id, jobId);
 
 

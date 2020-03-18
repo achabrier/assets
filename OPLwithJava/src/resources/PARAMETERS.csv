@@ -1,0 +1,4 @@
+// Comma Separated Value file for the table PARAMETERS
+// It must fill columns:
+// ONE,NB_PERIODS,RESERVE_PERCENT
+1,168,0.0

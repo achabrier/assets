@@ -1,10 +1,14 @@
 package com.ibm;
 
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.ibm.wmlconnector.COSConnector;
@@ -18,59 +22,68 @@ import org.json.JSONObject;
 public class Sample {
     private static final Logger LOGGER = Logger.getLogger(Sample.class.getName());
 
+    public static String getFileContent(String inputFilename)  {
+        String res = "";
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(inputFilename));
+            for (Iterator<String> it = lines.iterator(); it.hasNext();)
+                res += it.next() + "\n";
+        } catch (IOException e) {
+            LOGGER.severe("Error getting binary file" + e.getStackTrace());
+        }
 
-
-    private static JSONArray getDietData() {
-        String data = "[\n" +
-                "				{\n" +
-                "					\"id\":\"diet_food.csv\",\n" +
-                "					\"fields\" : [\"name\",\"unit_cost\",\"qmin\",\"qmax\"],\n" +
-                "					\"values\" : [\n" +
-                "						[\"Roasted Chicken\", 0.84, 0, 10],\n" +
-                "						[\"Spaghetti W/ Sauce\", 0.78, 0, 10],\n" +
-                "						[\"Tomato,Red,Ripe,Raw\", 0.27, 0, 10],\n" +
-                "						[\"Apple,Raw,W/Skin\", 0.24, 0, 10],\n" +
-                "						[\"Grapes\", 0.32, 0, 10],\n" +
-                "						[\"Chocolate Chip Cookies\", 0.03, 0, 10],\n" +
-                "						[\"Lowfat Milk\", 0.23, 0, 10],\n" +
-                "						[\"Raisin Brn\", 0.34, 0, 10],\n" +
-                "						[\"Hotdog\", 0.31, 0, 10]\n" +
-                "					]\n" +
-                "				},\n" +
-                "				{\n" +
-                "					\"id\":\"diet_food_nutrients.csv\",\n" +
-                "					\"fields\" : [\"Food\",\"Calories\",\"Calcium\",\"Iron\",\"Vit_A\",\"Dietary_Fiber\",\"Carbohydrates\",\"Protein\"],\n" +
-                "					\"values\" : [\n" +
-                "						[\"Spaghetti W/ Sauce\", 358.2, 80.2, 2.3, 3055.2, 11.6, 58.3, 8.2],\n" +
-                "						[\"Roasted Chicken\", 277.4, 21.9, 1.8, 77.4, 0, 0, 42.2],\n" +
-                "						[\"Tomato,Red,Ripe,Raw\", 25.8, 6.2, 0.6, 766.3, 1.4, 5.7, 1],\n" +
-                "						[\"Apple,Raw,W/Skin\", 81.4, 9.7, 0.2, 73.1, 3.7, 21, 0.3],\n" +
-                "						[\"Grapes\", 15.1, 3.4, 0.1, 24, 0.2, 4.1, 0.2],\n" +
-                "						[\"Chocolate Chip Cookies\", 78.1, 6.2, 0.4, 101.8, 0, 9.3, 0.9],\n" +
-                "						[\"Lowfat Milk\", 121.2, 296.7, 0.1, 500.2, 0, 11.7, 8.1],\n" +
-                "						[\"Raisin Brn\", 115.1, 12.9, 16.8, 1250.2, 4, 27.9, 4],\n" +
-                "						[\"Hotdog\", 242.1, 23.5, 2.3, 0, 0, 18, 10.4	]\n" +
-                "					]\n" +
-                "				},\n" +
-                "				{\n" +
-                "					\"id\":\"diet_nutrients.csv\",\n" +
-                "					\"fields\" : [\"name\",\"qmin\",\"qmax\"],\n" +
-                "					\"values\" : [\n" +
-                "						[\"Calories\", 2000, 2500],\n" +
-                "						[\"Calcium\", 800, 1600],\n" +
-                "						[\"Iron\", 10, 30],\n" +
-                "						[\"Vit_A\", 5000, 50000],\n" +
-                "						[\"Dietary_Fiber\", 25, 100],\n" +
-                "						[\"Carbohydrates\", 0, 300],\n" +
-                "						[\"Protein\", 50, 100]\n" +
-                "					]\n" +
-                "				}\n" +
-                "			],\n";
-        JSONArray jsonData  = new JSONArray(data);
-        return jsonData;
-
+        return res;
     }
 
+    private static JSONObject createDataFromCSV(String fileName) {
+
+        JSONObject data = new JSONObject();
+        data.put("id", fileName);
+
+        JSONArray fields = new JSONArray();
+        JSONArray all_values = new JSONArray();
+        String file = getFileContent("src/resources/"+fileName);
+        String[] lines = file.split("\n");
+        int nlines = lines.length;
+        String[] fields_array = lines[0].split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+        int nfields = fields_array.length;
+        for (int i=0; i<nfields; i++) {
+            String field = fields_array[i];
+            if (field.charAt(0) == '"')
+                field = field.substring(1);
+            if  (field.charAt(field.length()-1) == '"')
+                field = field.substring(0, field.length()-1);
+            fields.put(field);
+        }
+        data.put("fields", fields);
+
+        for (int i = 1; i<nlines; i++) {
+            JSONArray values = new JSONArray();
+            String[] values_array = lines[i].split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            for (int j=0; j<nfields; j++) {
+                String value = values_array[j];
+                if (value.charAt(0) == '"')
+                    value = value.substring(1);
+                if (value.charAt(value.length() - 1) == '"')
+                    value = value.substring(0, value.length() - 1);
+
+                try {
+                    int ivalue = Integer.parseInt(value);
+                    values.put(ivalue);
+                } catch (NumberFormatException e) {
+                    try {
+                        double dvalue = Double.parseDouble(value);
+                        values.put(dvalue);
+                    } catch (NumberFormatException e2) {
+                        values.put(value);
+                    }
+                }
+            }
+            all_values.put(values);
+        }
+        data.put("values", all_values);
+        return data;
+    }
 
 
     public WMLJob createAndRunJobOnExistingDeployment(String deployment_id,
@@ -183,7 +196,10 @@ public class Sample {
         LOGGER.info("Full flow with Diet");
 
         String deployment_id = createAndDeployDietPythonModel();
-        JSONArray input_data = getDietData();
+        JSONArray input_data = new JSONArray();
+        input_data.put(createDataFromCSV("diet_food.csv"));
+        input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
+        input_data.put(createDataFromCSV("diet_nutrients.csv"));
         JSONArray output_data_references = null;
         if (useOutputDataReferences) {
             COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
@@ -270,18 +286,97 @@ public class Sample {
         deleteDeployment(deployment_id);
     }
 
-    public void fullCPOFLow() {
-        String deployment_id = createAndDeployEmptyCPOModel();
+
+    public void runCPO(String modelName) {
+        String deployment_id = Credentials.cpo_deployment_id;
         COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
-        cos.putFile("plant_location.cpo", "src/resources/plant_location.cpo");
+        cos.putFile(modelName + ".cpo", "src/resources/" + modelName + ".cpo");
         JSONArray input_data_references = new JSONArray();
-        input_data_references.put(cos.getDataReferences("plant_location.cpo"));
+        input_data_references.put(cos.getDataReferences(modelName + ".cpo"));
         JSONArray output_data_references = new JSONArray();
         output_data_references.put(cos.getDataReferences("log.txt"));
         output_data_references.put(cos.getDataReferences("solution.json"));
         createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
         getLogFromCOS();
         getFileFromCOS("solution.json");
+    }
+
+    public String createAndDeployWarehouseOPLModel() {
+
+        LOGGER.info("Create Warehouse OPL Model");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+
+        String model_id = wml.createNewModel("Warehouse","do-opl_12.9","src/resources/warehouse.zip");
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("warehouse-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        return deployment_id;
+    }
+
+    public void fullWarehouseOPLFlow(boolean useOutputDataReferences) {
+
+        LOGGER.info("Full Warehouse with OPL");
+
+        String deployment_id = createAndDeployWarehouseOPLModel();
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        cos.putFile("warehouse.dat", "src/resources/warehouse.dat");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("warehouse.dat"));
+        JSONArray output_data_references = null;
+        if (useOutputDataReferences) {
+            output_data_references = new JSONArray();
+            output_data_references.put(cos.getDataReferences("log.txt"));
+        }
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLogFromCOS();
+        } else {
+            getLogFromJob(job);
+        }
+        deleteDeployment(deployment_id);
+    }
+
+
+    public String createAndDeployDietOPLModel() {
+
+        LOGGER.info("Create Diet OPL Model");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+
+        String model_id = wml.createNewModel("Diet","do-opl_12.9","src/resources/dietopl.zip");
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("diet-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        return deployment_id;
+    }
+
+    public void fullDietOPLFlow(boolean useOutputDataReferences) {
+
+        LOGGER.info("Full Diet with OPL");
+
+        String deployment_id = createAndDeployDietOPLModel();
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        cos.putFile("diet.dat", "src/resources/diet.dat");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("diet.dat"));
+        JSONArray output_data_references = null;
+        if (useOutputDataReferences) {
+            output_data_references = new JSONArray();
+            output_data_references.put(cos.getDataReferences("log.txt"));
+            output_data_references.put(cos.getDataReferences("solution.json"));
+        }
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLogFromCOS();
+            getSolutionFromCOS();
+        } else {
+            getLogFromJob(job);
+        }
         deleteDeployment(deployment_id);
     }
 
@@ -289,10 +384,16 @@ public class Sample {
         Sample main = new Sample();
 
 
-        main.fullDietPythonFlow(true);
+//        main.fullDietPythonFlow(true);
 //        main.fullDietLPFLow();
 //        main.fullInfeasibleLPFLow();
 //        main.fullCPOFLow();
+
+        //main.fullWarehouseOPLFlow(true);
+        main.fullDietOPLFlow(true);
+
+        //main.runCPO("colors");
+        //main.runCPO("plant_location");
 
     }
 }

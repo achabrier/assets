@@ -1,0 +1,10 @@
+// Comma Separated Value file for the table WEEKDAYS
+// It must fill columns:
+// NAME
+"Mon"
+"Tue"
+"Wed"
+"Thu"
+"Fri"
+"Sat"
+"Sun"

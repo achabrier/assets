@@ -1,0 +1,6 @@
+// Comma Separated Value file for the table STATUS_CODES
+// It must fill columns:
+// INDEX,VALUE
+-1,"Off"
+0,""
+1,"On"

@@ -236,7 +236,7 @@ public abstract class ConnectorImpl {
             for (Iterator<String> it = lines.iterator(); it.hasNext();)
                 res += it.next() + "\n";
         } catch (IOException e) {
-            LOGGER.severe("Error getting binary file" + e.getStackTrace());
+            LOGGER.severe("Error getting text file" + e.getStackTrace());
         }
 
         return res;

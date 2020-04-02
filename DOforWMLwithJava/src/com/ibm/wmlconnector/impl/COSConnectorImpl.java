@@ -38,6 +38,17 @@ public class COSConnectorImpl extends ConnectorImpl implements COSConnector {
     }
 
     @Override
+    public void putBinaryFile(String fileName, String filePath) {
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("Authorization", "bearer " + bearerToken);
+
+        byte[] bytes = getBinaryFileContent(filePath);
+
+        doPut(url + "/" + bucket + "/" + fileName, headers, bytes);
+
+    }
+
+    @Override
     public String getFile(String fileName) {
 
         HashMap<String, String> headers = new HashMap<String, String>();

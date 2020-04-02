@@ -81,3 +81,30 @@ execute
 	writeln(COST);
 	writeln(SOLUTION);
 }
+
+
+main {
+  
+  writeln("Running main");
+  
+  thisOplModel.generate();
+
+  var diet = thisOplModel;
+  var cost = diet.cost;
+  
+
+  if ( cplex.solve() ) {
+    var obj = cplex.getObjValue();
+  	writeln();
+  	writeln("OBJECTIVE: ",obj);
+  	writeln("cost= ", cost);
+  	writeln("AMOUNT = ", diet.AMOUNT);
+  	writeln("SOLUTION = ", diet.SOLUTION);
+  	
+  	diet.postProcess();
+  	              
+  } 
+  else {
+    writeln("No solution!");   
+  }
+}

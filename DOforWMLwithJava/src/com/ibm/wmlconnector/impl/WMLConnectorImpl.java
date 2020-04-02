@@ -61,6 +61,11 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         }
 
         @Override
+        public JSONObject getStatus() {
+            return status;
+        }
+
+        @Override
         public String getState() {
             return status.getJSONObject("entity").getJSONObject("decision_optimization").getJSONObject("status").getString("state");
         }
@@ -68,6 +73,30 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         @Override
         public boolean hasSolveState() {
             return status.getJSONObject("entity").getJSONObject("decision_optimization").has("solve_state");
+        }
+
+        @Override
+        public boolean hasSolveStatus() {
+            return status.getJSONObject("entity").getJSONObject("decision_optimization").getJSONObject("solve_state").has("solve_status");
+        }
+
+        @Override
+        public String getSolveStatus() {
+            return status.getJSONObject("entity").getJSONObject("decision_optimization").getJSONObject("solve_state").getString("solve_status");
+        }
+
+        @Override
+        public boolean hasLatestEngineActivity() {
+            return status.getJSONObject("entity").getJSONObject("decision_optimization").getJSONObject("solve_state").has("latest_engine_activity");
+        }
+
+        @Override
+        public String getLatestEngineActivity() {
+            JSONArray lines = status.getJSONObject("entity").getJSONObject("decision_optimization").getJSONObject("solve_state").getJSONArray("latest_engine_activity");
+            String log = "";
+            for (Iterator<Object> it = lines.iterator(); it.hasNext(); )
+                log += (String)it.next() + "\n";
+            return log;
         }
 
         @Override
@@ -172,11 +201,12 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         return null;
     }
 
-
-    //type = do-opl_12.9
-    //modelAssetFilePath = src/resources/OPL/production_cloud_mods.zip
     @Override
-    public String createNewModel(String modelName, String type, String modelAssetFilePath ) {
+    public String createNewModel(String modelName, String type, String modelAssetFilePath) {
+        return this.createNewModel(modelName, type, modelAssetFilePath, "/v4/runtimes/do_12.10");
+    }
+    @Override
+    public String createNewModel(String modelName, String type, String modelAssetFilePath, String runtime) {
 
         String iamToken = getBearerToken();
         String modelId = null;
@@ -187,7 +217,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             headers.put("cache-control", "no-cache");
             headers.put("Content-Type", "application/json");
 
-            JSONObject payload = new JSONObject("{\"name\":\""+modelName+"\", \"description\":\""+modelName+"\", \"type\":\""+type+"\",\"runtime\": {\"href\":\"/v4/runtimes/do_12.9\"}}");
+            JSONObject payload = new JSONObject("{\"name\":\""+modelName+"\", \"description\":\""+modelName+"\", \"type\":\""+type+"\",\"runtime\": {\"href\":\""+runtime+"\"}}");
 
             String res = doPost(url + "/v4/models", headers, payload.toString());
 

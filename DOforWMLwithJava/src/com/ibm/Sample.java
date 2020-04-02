@@ -109,24 +109,31 @@ public class Sample {
             try {
                 state = job.getState();
                 if (job.hasSolveState()) {
+
+                    if (job.hasSolveStatus())
+                        LOGGER.info("Solve Status : " + job.getSolveStatus());
+                    if (job.hasLatestEngineActivity())
+                        LOGGER.info("Latest Engine Activity : " + job.getLatestEngineActivity());
+
                     HashMap<String, Object> kpis = job.getKPIs();
 
                     Iterator<String> keys = kpis.keySet().iterator();
 
                     while (keys.hasNext()) {
                         String kpi = keys.next();
-                        LOGGER.info("KPI " + kpi + " = " + kpis.get(kpi));
+                        LOGGER.info("KPI: " + kpi + " = " + kpis.get(kpi));
                     }
                 }
             } catch (JSONException e) {
                 LOGGER.severe("Error extractState: " + e);
             }
 
-            LOGGER.info("State: " + state);
+            LOGGER.info("Job State: " + state);
         } while (!state.equals("completed") && !state.equals("failed"));
 
         if (state.equals("failed")) {
             LOGGER.severe("Job failed.");
+            LOGGER.severe("Job status:" + job.getStatus());
         } else {
             output_data = job.extractOutputData();
             LOGGER.info("output_data = " + output_data);
@@ -172,7 +179,8 @@ public class Sample {
 
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
 
-        String model_id = wml.createNewModel("Diet","do-docplex_12.9","src/resources/diet.zip");
+        String model_id = wml.createNewModel("Diet","do-docplex_12.10","src/resources/diet.zip", "/v4/runtimes/do_12.10");
+        //String model_id = wml.createNewModel("Diet","do-docplex_12.9","src/resources/diet.zip", "/v4/runtimes/do_12.9");
         LOGGER.info("model_id = "+ model_id);
 
         String deployment_id = wml.deployModel("diet-test-wml-2", wml.getModelHref(model_id, false),"S",1);
@@ -346,7 +354,7 @@ public class Sample {
 
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
 
-        String model_id = wml.createNewModel("Diet","do-opl_12.9","src/resources/dietopl.zip");
+        String model_id = wml.createNewModel("Diet OPL","do-opl_12.9","src/resources/dietopl.zip");
         LOGGER.info("model_id = "+ model_id);
 
         String deployment_id = wml.deployModel("diet-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
@@ -355,24 +363,35 @@ public class Sample {
         return deployment_id;
     }
 
-    public void fullDietOPLFlow(boolean useDat, boolean useOutputDataReferences) {
+    public String createAndDeployDietMainOPLModel() {
+
+        LOGGER.info("Create Diet Main OPL Model");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+
+        String model_id = wml.createNewModel("Diet Main OPL","do-opl_12.9","src/resources/dietoplmain.zip");
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("diet-main-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        return deployment_id;
+    }
+
+
+    public void fullDietOPLWithDatFlow(boolean useOutputDataReferences) {
 
         LOGGER.info("Full Diet with OPL");
 
         String deployment_id = createAndDeployDietOPLModel();
         COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
-        JSONArray input_data = null;
-        JSONArray input_data_references = null;
-        if (useDat) {
-            cos.putFile("diet.dat", "src/resources/diet.dat");
-            input_data_references = new JSONArray();
-            input_data_references.put(cos.getDataReferences("diet.dat"));
-        } else {
-            input_data = new JSONArray();
-            input_data.put(createDataFromCSV("diet_food.csv"));
-            input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
-            input_data.put(createDataFromCSV("diet_nutrients.csv"));
-        }
+        cos.putFile("diet.dat", "src/resources/diet.dat");
+        //cos.putFile("dietxls.dat", "src/resources/dietxls.dat");
+        //cos.putBinaryFile("diet.xlsx", "src/resources/diet.xlsx");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("diet.dat"));
+        //input_data_references.put(cos.getDataReferences("dietxls.dat"));
+        //input_data_references.put(cos.getDataReferences("diet.xlsx"));
         JSONArray output_data_references = null;
         if (useOutputDataReferences) {
             output_data_references = new JSONArray();
@@ -381,7 +400,7 @@ public class Sample {
         } else {
 
         }
-        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, input_data, input_data_references, null, output_data_references);
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
             getLogFromCOS();
             getSolutionFromCOS();
@@ -391,18 +410,148 @@ public class Sample {
         deleteDeployment(deployment_id);
     }
 
+    public void fullDietMainOPLWithDatFlow(boolean useOutputDataReferences) {
+
+        LOGGER.info("Full Diet with Main OPL");
+
+        String deployment_id = createAndDeployDietMainOPLModel();
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        cos.putFile("diet.dat", "src/resources/diet.dat");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("diet.dat"));
+        JSONArray output_data_references = null;
+        if (useOutputDataReferences) {
+            output_data_references = new JSONArray();
+            output_data_references.put(cos.getDataReferences("log.txt"));
+            output_data_references.put(cos.getDataReferences("solution.json"));
+        } else {
+
+        }
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLogFromCOS();
+            getSolutionFromCOS();
+        } else {
+            getLogFromJob(job);
+        }
+        deleteDeployment(deployment_id);
+    }
+
+    public void fullDietOPLWithCSVFlow(boolean useOutputDataReferences) {
+
+        LOGGER.info("Full Diet with OPL");
+
+        String deployment_id = createAndDeployDietOPLModel();
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        JSONArray input_data = new JSONArray();
+        input_data.put(createDataFromCSV("diet_food.csv"));
+        input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
+        input_data.put(createDataFromCSV("diet_nutrients.csv"));
+        JSONArray output_data_references = null;
+        if (useOutputDataReferences) {
+            output_data_references = new JSONArray();
+            output_data_references.put(cos.getDataReferences("log.txt"));
+            output_data_references.put(cos.getDataReferences("solution.json"));
+        } else {
+
+        }
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLogFromCOS();
+            getSolutionFromCOS();
+        } else {
+            getLogFromJob(job);
+        }
+        deleteDeployment(deployment_id);
+    }
+
+    public void fullOPLWithJSONFlow(boolean useOutputDataReferences) {
+
+        LOGGER.info("Full JSON Test with OPL");
+
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+
+        String model_id = wml.createNewModel("JSON Test OPL","do-opl_12.9","src/resources/jsontest.zip");
+        LOGGER.info("model_id = "+ model_id);
+
+        String deployment_id = wml.deployModel("json-test-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        LOGGER.info("deployment_id = "+ deployment_id);
+
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        cos.putFile("Nurses.json", "src/resources/Nurses.json");
+        cos.putFile("spokes.json", "src/resources/spokes.json");
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("Nurses.json"));
+        input_data_references.put(cos.getDataReferences("spokes.json"));
+        JSONArray output_data_references = null;
+        if (useOutputDataReferences) {
+            output_data_references = new JSONArray();
+            output_data_references.put(cos.getDataReferences("log.txt"));
+            output_data_references.put(cos.getDataReferences("solution.json"));
+        } else {
+
+        }
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, null, input_data_references, null, output_data_references);
+        if (useOutputDataReferences) {
+            getLogFromCOS();
+            getSolutionFromCOS();
+        } else {
+            getLogFromJob(job);
+        }
+        deleteDeployment(deployment_id);
+    }
+
+    public void fullInfeasibleDietOPLFlow() {
+
+        LOGGER.info("Full Infeasible Diet with OPL");
+
+        String deployment_id = createAndDeployDietOPLModel();
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        JSONArray input_data = null;
+        JSONArray input_data_references = null;
+        cos.putFile("infeasible_diet.dat", "src/resources/infeasible_diet.dat");
+        cos.putFile("infeasible_diet.ops", "src/resources/infeasible_diet.ops");
+        input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences("infeasible_diet.dat"));
+        input_data_references.put(cos.getDataReferences("infeasible_diet.ops"));
+
+        JSONArray output_data_references = null;
+        output_data_references = new JSONArray();
+        output_data_references.put(cos.getDataReferences("log.txt"));
+        output_data_references.put(cos.getDataReferences("solution.json"));
+
+        WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, input_data, input_data_references, null, output_data_references);
+        LOGGER.info("Status:" + job.getStatus());
+        getLogFromCOS();
+        getSolutionFromCOS();
+        deleteDeployment(deployment_id);
+    }
+
+
     public static void main(String[] args) {
         Sample main = new Sample();
 
 
-//        main.fullDietPythonFlow(true);
+        // Python
+        //main.fullDietPythonFlow(false);
+
+        // OPL
+        //main.fullWarehouseOPLFlow(true);
+        //main.fullDietOPLWithDatFlow(false);
+        //main.fullDietOPLWithCSVFlow(false);
+
+        //main.fullDietMainOPLWithDatFlow(false);
+        main.fullOPLWithJSONFlow(true);
+
+        //KO main.fullInfeasibleDietOPLFlow();
+
+        // CPLEX
 //        main.fullDietLPFLow();
 //        main.fullInfeasibleLPFLow();
+
+
+        // CPO
 //        main.fullCPOFLow();
-
-        //main.fullWarehouseOPLFlow(true);
-        main.fullDietOPLFlow( false, false);
-
         //main.runCPO("colors");
         //main.runCPO("plant_location");
 

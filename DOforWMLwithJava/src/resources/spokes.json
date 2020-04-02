@@ -1,0 +1,11 @@
+{"Spokes":[
+{"name":"A",
+"minDepTime":360,
+"maxArrTime":1080
+},
+{"name":"B",
+"minDepTime":400,
+"maxArrTime":1150
+}
+]
+}

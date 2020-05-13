@@ -168,6 +168,9 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
                 JSONObject outtxt = new JSONObject();
                 outtxt.put("id", ".*\\.txt");
                 output_data.put(outtxt);
+                JSONObject outjson = new JSONObject();
+                outjson.put("id", ".*\\.json");
+                output_data.put(outjson);
                 decision_optimization.put("output_data", output_data);
             }
 

@@ -29,11 +29,22 @@ public class Sample {
             for (Iterator<String> it = lines.iterator(); it.hasNext();)
                 res += it.next() + "\n";
         } catch (IOException e) {
-            LOGGER.severe("Error getting binary file" + e.getStackTrace());
+            LOGGER.severe("Error getting file" + e.getStackTrace());
         }
 
         return res;
     }
+
+    public static byte[] getFileContentAsBytes(String inputFilename)  {
+        byte[] bytes = null;
+        try {
+            bytes = Files.readAllBytes(Paths.get(inputFilename));
+        } catch (IOException e) {
+            LOGGER.severe("Error getting file" + e.getStackTrace());
+        }
+        return bytes;
+    }
+
 
     private static JSONObject createDataFromCSV(String fileName) {
 
@@ -85,6 +96,25 @@ public class Sample {
         return data;
     }
 
+
+    private static JSONObject createDataFromFile(String fileName) {
+
+        byte[] bytes = getFileContentAsBytes("src/resources/"+fileName);
+        byte[] encoded = Base64.getEncoder().encode(bytes);
+
+        JSONObject data = new JSONObject();
+        data.put("id", fileName);
+
+        JSONArray fields = new JSONArray();
+        fields.put("___TEXT___");
+        data.put("fields", fields);
+
+        JSONArray values = new JSONArray();
+        values.put(new JSONArray().put(new String(encoded)));
+        data.put("values", values);
+
+        return data;
+    }
 
     public WMLJob createAndRunJobOnExistingDeployment(String deployment_id,
                                                     JSONArray input_data,
@@ -183,7 +213,7 @@ public class Sample {
         //String model_id = wml.createNewModel("Diet","do-docplex_12.9","src/resources/diet.zip", "/v4/runtimes/do_12.9");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("diet-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("diet-test-wml-2", wml.getModelHref(model_id, false),"M",1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -237,6 +267,25 @@ public class Sample {
         getSolutionFromCOS();
         deleteDeployment(deployment_id);
     }
+
+
+    public void fullDietLPInlineFLow(int nJobs) {
+        String deployment_id = createAndDeployEmptyCPLEXModel();
+        long startTime = System.nanoTime();
+        for (int i=0; i<nJobs; i++) {
+            JSONArray input_data = new JSONArray();
+            input_data.put(createDataFromFile("diet.lp"));
+            WMLJob job = createAndRunJobOnExistingDeployment(deployment_id, input_data, null, null, null);
+            getLogFromJob(job);
+            //getSolutionFromJob();
+            long endTime   = System.nanoTime();
+            long totalTime = endTime - startTime;
+            LOGGER.info("Total time: " + (totalTime/1000000000.));
+            startTime = System.nanoTime();
+        }
+        deleteDeployment(deployment_id);
+    }
+
 
     public void getLogFromJob(WMLJob job) {
         JSONArray output_data = job.extractOutputData();
@@ -541,12 +590,14 @@ public class Sample {
         //main.fullDietOPLWithCSVFlow(false);
 
         //main.fullDietMainOPLWithDatFlow(false);
-        main.fullOPLWithJSONFlow(true);
+        //main.fullOPLWithJSONFlow(true);
 
         //KO main.fullInfeasibleDietOPLFlow();
 
         // CPLEX
 //        main.fullDietLPFLow();
+        main.fullDietLPInlineFLow(20 );
+
 //        main.fullInfeasibleLPFLow();
 
 

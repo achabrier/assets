@@ -35,6 +35,8 @@ def write_all_outputs(outputs):
     if len(outputs) == 0:
         print("Warning: no outputs written")
  
+import os
+print (os.environ)
 
 # Load CSV files into inputs dictionnary
 inputs = get_all_inputs()

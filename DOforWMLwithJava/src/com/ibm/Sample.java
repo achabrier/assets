@@ -185,17 +185,18 @@ public class Sample {
         input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
         input_data.put(createDataFromCSV("diet_nutrients.csv"));
         JSONArray output_data_references = null;
+        COSConnector cos = null;
         if (useOutputDataReferences) {
-            COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+            cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
             output_data_references = new JSONArray();
             output_data_references.put(cos.getDataReferences("log.txt"));
         }
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job =wml.createAndRunJob(deployment_id, input_data, null, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -213,8 +214,8 @@ public class Sample {
         LOGGER.info("Create and authenticate WML Connector");
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
-        getLogFromCOS();
-        getSolutionFromCOS();
+        LOGGER.info("Log:" + getLogFromCOS(cos));
+        LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         deleteDeployment(wml, deployment_id);
     }
 
@@ -230,8 +231,8 @@ public class Sample {
             JSONArray input_data = new JSONArray();
             input_data.put(createDataFromFile("diet.lp"));
             WMLJob job = wml.createAndRunJob(deployment_id, input_data, null, null, null);
-            getLogFromJob(job);
-            getSolutionFromJob(job);
+            getLogFromJob(job); // don't log
+            getSolutionFromJob(job); // don'tlog
             long endTime   = System.nanoTime();
             long totalTime = endTime - startTime;
             LOGGER.info("Total time: " + (totalTime/1000000000.));
@@ -241,7 +242,7 @@ public class Sample {
     }
 
 
-    public void getLogFromJob(WMLJob job) {
+    public String getLogFromJob(WMLJob job) {
         JSONArray output_data = job.extractOutputData();
         for (Iterator<Object> it = output_data.iterator(); it.hasNext(); ) {
             JSONObject o = (JSONObject)it.next();
@@ -251,17 +252,17 @@ public class Sample {
                     encoded = o.getJSONArray("values").getJSONArray(0).getString(0).getBytes("UTF-8");
                     byte[] decoded = Base64.getDecoder().decode(encoded);
                     String log = new String(decoded, "UTF-8");
-
-                    LOGGER.info("log: " + log);
+                    return log;
 
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
         }
+        return null;
     }
 
-    public void getSolutionFromJob(WMLJob job) {
+    public String getSolutionFromJob(WMLJob job) {
         JSONArray output_data = job.extractOutputData();
         for (Iterator<Object> it = output_data.iterator(); it.hasNext(); ) {
             JSONObject o = (JSONObject)it.next();
@@ -270,34 +271,30 @@ public class Sample {
                 try {
                     encoded = o.getJSONArray("values").getJSONArray(0).getString(0).getBytes("UTF-8");
                     byte[] decoded = Base64.getDecoder().decode(encoded);
-                    String log = new String(decoded, "UTF-8");
-
-                    LOGGER.info("solution: " + log);
+                    String solution = new String(decoded, "UTF-8");
+                    return solution;
 
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
         }
+        return null;
     }
 
 
-    public void getLogFromCOS() {
-        getFileFromCOS("log.txt");
+    public String getLogFromCOS(COSConnector cos) {
+        return getFileFromCOS(cos,"log.txt");
     }
 
-    public void getSolutionFromCOS() {
-        getFileFromCOS("solution.json");
+    public String getSolutionFromCOS(COSConnector cos) {
+        return getFileFromCOS(cos, "solution.json");
     }
 
-    public void getFileFromCOS(String fileName) {
-
-        LOGGER.info("Get " + fileName);
-        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
-        String log = cos.getFile(fileName);
-
-        log = log.replaceAll("\\r", "\n");
-        LOGGER.info(fileName+": " + log);
+    public String getFileFromCOS(COSConnector cos, String fileName) {
+        String content = cos.getFile(fileName);
+        content = content.replaceAll("\\r", "\n");
+        return content;
     }
 
     public void fullInfeasibleLPFLow() {
@@ -313,8 +310,8 @@ public class Sample {
         output_data_references.put(cos.getDataReferences("conflict.json"));
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
-        getLogFromCOS();
-        getFileFromCOS("conflict.json");
+        LOGGER.info("Log:" + getLogFromCOS(cos));
+        LOGGER.info("Conflict:" + getFileFromCOS(cos,"conflict.json"));
         deleteDeployment(wml, deployment_id);
     }
 
@@ -330,8 +327,8 @@ public class Sample {
         output_data_references.put(cos.getDataReferences("solution.json"));
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
-        getLogFromCOS();
-        getFileFromCOS("solution.json");
+        LOGGER.info("Log:" + getLogFromCOS(cos));
+        LOGGER.info("Solution:" + getSolutionFromCOS(cos));
     }
 
     public String createAndDeployWarehouseOPLModel() {
@@ -366,9 +363,9 @@ public class Sample {
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job = wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -429,10 +426,10 @@ public class Sample {
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job = wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
-            getSolutionFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
+            LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -457,10 +454,10 @@ public class Sample {
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job = wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
-            getSolutionFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
+            LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -486,10 +483,10 @@ public class Sample {
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job = wml.createAndRunJob(deployment_id, input_data, null, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
-            getSolutionFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
+            LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -522,10 +519,10 @@ public class Sample {
         }
         WMLJob job = wml.createAndRunJob(deployment_id, null, input_data_references, null, output_data_references);
         if (useOutputDataReferences) {
-            getLogFromCOS();
-            getSolutionFromCOS();
+            LOGGER.info("Log:" + getLogFromCOS(cos));
+            LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         } else {
-            getLogFromJob(job);
+            LOGGER.info("Log:" + getLogFromJob(job));
         }
         deleteDeployment(wml, deployment_id);
     }
@@ -552,8 +549,8 @@ public class Sample {
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         WMLJob job = wml.createAndRunJob(deployment_id, input_data, input_data_references, null, output_data_references);
         LOGGER.info("Status:" + job.getStatus());
-        getLogFromCOS();
-        getSolutionFromCOS();
+        LOGGER.info("Log:" + getLogFromCOS(cos));
+        LOGGER.info("Solution:" + getSolutionFromCOS(cos));
         deleteDeployment(wml, deployment_id);
     }
 

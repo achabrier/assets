@@ -17,6 +17,7 @@ import java.util.*;
 public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
 
     private static final Logger LOGGER = Logger.getLogger(WMLConnectorImpl.class.getName());
+    private static final boolean LOG = false;
 
 
     String url;
@@ -135,7 +136,8 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
                             JSONArray input_data_references,
                             JSONArray output_data,
                             JSONArray output_data_references) {
-        LOGGER.info("Create job");
+        if (LOG)
+            LOGGER.info("Create job");
 
         try {
             JSONObject payload = new JSONObject();
@@ -193,7 +195,8 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             JSONObject json = new JSONObject(res);
             String jobId = (String)((JSONObject)json.get("metadata")).get("guid");
 
-            LOGGER.info("job_id = "+ jobId);
+            if (LOG)
+                LOGGER.info("job_id = "+ jobId);
 
             return new WMLJobImpl(deployment_id, jobId);
 
@@ -217,7 +220,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         String state = null;
         do {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -228,25 +231,28 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
                 state = job.getState();
                 if (job.hasSolveState()) {
 
-                    if (job.hasSolveStatus())
-                        LOGGER.info("Solve Status : " + job.getSolveStatus());
-                    if (job.hasLatestEngineActivity())
-                        LOGGER.info("Latest Engine Activity : " + job.getLatestEngineActivity());
+                    if (LOG) {
+                        if (job.hasSolveStatus())
+                            LOGGER.info("Solve Status : " + job.getSolveStatus());
+                        if (job.hasLatestEngineActivity())
+                            LOGGER.info("Latest Engine Activity : " + job.getLatestEngineActivity());
 
-                    HashMap<String, Object> kpis = job.getKPIs();
+                        HashMap<String, Object> kpis = job.getKPIs();
 
-                    Iterator<String> keys = kpis.keySet().iterator();
+                        Iterator<String> keys = kpis.keySet().iterator();
 
-                    while (keys.hasNext()) {
-                        String kpi = keys.next();
-                        LOGGER.info("KPI: " + kpi + " = " + kpis.get(kpi));
+                        while (keys.hasNext()) {
+                            String kpi = keys.next();
+                            LOGGER.info("KPI: " + kpi + " = " + kpis.get(kpi));
+                        }
                     }
                 }
             } catch (JSONException e) {
                 LOGGER.severe("Error extractState: " + e);
             }
 
-            LOGGER.info("Job State: " + state);
+            if (LOG)
+                LOGGER.info("Job State: " + state);
         } while (!state.equals("completed") && !state.equals("failed"));
 
         if (state.equals("failed")) {
@@ -254,7 +260,8 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             LOGGER.severe("Job status:" + job.getStatus());
         } else {
             output_data = job.extractOutputData();
-            LOGGER.info("output_data = " + output_data);
+            if (LOG)
+                LOGGER.info("output_data = " + output_data);
         }
 
         return job;

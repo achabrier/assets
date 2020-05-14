@@ -135,6 +135,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
                             JSONArray input_data_references,
                             JSONArray output_data,
                             JSONArray output_data_references) {
+        LOGGER.info("Create job");
 
         try {
             JSONObject payload = new JSONObject();
@@ -202,6 +203,61 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         }
 
         return null;
+    }
+
+    @Override
+    public WMLJob createAndRunJob(String deployment_id,
+                                  JSONArray input_data,
+                                  JSONArray input_data_references,
+                                  JSONArray output_data,
+                                  JSONArray output_data_references) {
+
+        WMLJob job  = createJob(deployment_id, input_data, input_data_references, output_data, output_data_references);
+
+        String state = null;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+
+            job.updateStatus();
+
+            try {
+                state = job.getState();
+                if (job.hasSolveState()) {
+
+                    if (job.hasSolveStatus())
+                        LOGGER.info("Solve Status : " + job.getSolveStatus());
+                    if (job.hasLatestEngineActivity())
+                        LOGGER.info("Latest Engine Activity : " + job.getLatestEngineActivity());
+
+                    HashMap<String, Object> kpis = job.getKPIs();
+
+                    Iterator<String> keys = kpis.keySet().iterator();
+
+                    while (keys.hasNext()) {
+                        String kpi = keys.next();
+                        LOGGER.info("KPI: " + kpi + " = " + kpis.get(kpi));
+                    }
+                }
+            } catch (JSONException e) {
+                LOGGER.severe("Error extractState: " + e);
+            }
+
+            LOGGER.info("Job State: " + state);
+        } while (!state.equals("completed") && !state.equals("failed"));
+
+        if (state.equals("failed")) {
+            LOGGER.severe("Job failed.");
+            LOGGER.severe("Job status:" + job.getStatus());
+        } else {
+            output_data = job.extractOutputData();
+            LOGGER.info("output_data = " + output_data);
+        }
+
+        return job;
     }
 
     @Override

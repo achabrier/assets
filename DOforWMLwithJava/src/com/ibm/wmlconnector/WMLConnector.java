@@ -14,5 +14,10 @@ public interface WMLConnector {
                             JSONArray input_data_references,
                             JSONArray output_data,
                             JSONArray output_data_references);
+    public WMLJob createAndRunJob(String deployment_id,
+                                  JSONArray input_data,
+                                  JSONArray input_data_references,
+                                  JSONArray output_data,
+                                  JSONArray output_data_references);
     public void deleteDeployment(String deployment_id);
 }

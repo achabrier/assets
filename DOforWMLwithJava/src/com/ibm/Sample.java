@@ -153,11 +153,9 @@ public class Sample {
     }
 
 
-    public String createAndDeployDietPythonModel() {
+    public String createAndDeployDietPythonModel(WMLConnector wml) {
 
         LOGGER.info("Create Python Model");
-
-        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
 
         String model_id = wml.createNewModel("Diet","do-docplex_12.10","src/resources/diet.zip", "/v4/runtimes/do_12.10");
         //String model_id = wml.createNewModel("Diet","do-docplex_12.9","src/resources/diet.zip", "/v4/runtimes/do_12.9");
@@ -175,11 +173,12 @@ public class Sample {
         wml.deleteDeployment(deployment_id);
     }
 
-    public void fullDietPythonFlow(boolean useOutputDataReferences) {
+    public void fullDietPythonFlow(boolean useOutputDataReferences, int nJobs) {
 
         LOGGER.info("Full flow with Diet");
 
-        String deployment_id = createAndDeployDietPythonModel();
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+        String deployment_id = createAndDeployDietPythonModel(wml);
         JSONArray input_data = new JSONArray();
         input_data.put(createDataFromCSV("diet_food.csv"));
         input_data.put(createDataFromCSV("diet_food_nutrients.csv"));
@@ -191,22 +190,28 @@ public class Sample {
             output_data_references = new JSONArray();
             output_data_references.put(cos.getDataReferences("log.txt"));
         }
-        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
-        WMLJob job =wml.createAndRunJob(deployment_id, input_data, null, null, output_data_references);
-        if (useOutputDataReferences) {
-            LOGGER.info("Log:" + getLogFromCOS(cos));
-        } else {
-            LOGGER.info("Log:" + getLogFromJob(job));
+        long startTime = System.nanoTime();
+        for (int i=0; i<nJobs; i++) {
+            WMLJob job = wml.createAndRunJob(deployment_id, input_data, null, null, output_data_references);
+            if (useOutputDataReferences) {
+                getLogFromCOS(cos); // Don't log
+            } else {
+                getLogFromJob(job); // Don't log
+            }
+            long endTime   = System.nanoTime();
+            long totalTime = endTime - startTime;
+            LOGGER.info("Total time: " + (totalTime/1000000000.));
+            startTime = System.nanoTime();
         }
         deleteDeployment(wml, deployment_id);
     }
 
-    public void fullDietLPFLow() {
+    public void fullLPFLow(String filename) {
         String deployment_id = createAndDeployEmptyCPLEXModel();
         COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
-        cos.putFile("diet.lp", "src/resources/diet.lp");
+        cos.putFile(filename, "src/resources/"+filename);
         JSONArray input_data_references = new JSONArray();
-        input_data_references.put(cos.getDataReferences("diet.lp"));
+        input_data_references.put(cos.getDataReferences(filename));
         JSONArray output_data_references = new JSONArray();
         output_data_references.put(cos.getDataReferences("solution.json"));
         output_data_references.put(cos.getDataReferences("log.txt"));
@@ -220,7 +225,7 @@ public class Sample {
     }
 
 
-    public void fullDietLPInlineFLow(int nJobs) {
+    public void fullLPInlineFLow(String filename, int nJobs) {
 
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
 
@@ -229,7 +234,7 @@ public class Sample {
         long startTime = System.nanoTime();
         for (int i=0; i<nJobs; i++) {
             JSONArray input_data = new JSONArray();
-            input_data.put(createDataFromFile("diet.lp"));
+            input_data.put(createDataFromFile(filename));
             WMLJob job = wml.createAndRunJob(deployment_id, input_data, null, null, null);
             getLogFromJob(job); // don't log
             getSolutionFromJob(job); // don'tlog
@@ -560,7 +565,7 @@ public class Sample {
 
 
         // Python
-        //main.fullDietPythonFlow(false);
+        main.fullDietPythonFlow(false, 20);
 
         // OPL
         //main.fullWarehouseOPLFlow(true);
@@ -573,8 +578,10 @@ public class Sample {
         //KO main.fullInfeasibleDietOPLFlow();
 
         // CPLEX
-//        main.fullDietLPFLow();
-        main.fullDietLPInlineFLow(20 );
+//        main.fullLPFLow("diet.lp");
+
+        //main.fullLPInlineFLow("diet.lp", 20 );
+        //main.fullLPInlineFLow("acc-tight4.lp", 20 );
 
 //        main.fullInfeasibleLPFLow();
 

@@ -565,7 +565,7 @@ public class Sample {
 
 
         // Python
-        main.fullDietPythonFlow(false, 20);
+        //main.fullDietPythonFlow(false, 20);
 
         // OPL
         //main.fullWarehouseOPLFlow(true);
@@ -581,7 +581,7 @@ public class Sample {
 //        main.fullLPFLow("diet.lp");
 
         //main.fullLPInlineFLow("diet.lp", 20 );
-        //main.fullLPInlineFLow("acc-tight4.lp", 20 );
+        main.fullLPInlineFLow("acc-tight4.lp", 20 );
 
 //        main.fullInfeasibleLPFLow();
 

@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public interface WMLJob {
     public void updateStatus();
-
+    public String getId();
     public JSONObject getStatus();
     public String getState();
     public boolean hasSolveState();

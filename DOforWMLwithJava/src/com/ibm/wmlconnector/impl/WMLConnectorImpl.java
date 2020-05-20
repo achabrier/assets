@@ -42,6 +42,11 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
         }
 
         @Override
+        public String getId() {
+            return job_id;
+        }
+
+        @Override
         public void updateStatus() {
             try {
 

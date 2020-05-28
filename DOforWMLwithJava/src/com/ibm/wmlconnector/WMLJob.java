@@ -17,5 +17,6 @@ public interface WMLJob {
     public String getLatestEngineActivity();
     public HashMap<String, Object> getKPIs();
     public JSONArray extractOutputData();
+    public void delete();
 }
 

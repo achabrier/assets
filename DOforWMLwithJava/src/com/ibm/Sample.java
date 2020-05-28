@@ -17,6 +17,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.ibm.wmlconnector.WMLConnector.ModelType.CPLEX_12_9;
+
 public class Sample {
     private static final Logger LOGGER = Logger.getLogger(Sample.class.getName());
 
@@ -114,31 +116,22 @@ public class Sample {
         return data;
     }
 
-    public String createAndDeployEmptyCPOModel(WMLConnector wml) {
-
-        LOGGER.info("Create Empty CPO Model");
-
-        String model_id = wml.createNewModel("EmptyCPOModel","do-cpo_12.9", null);
-        LOGGER.info("model_id = "+ model_id);
-
-        String deployment_id = wml.deployModel("empty-cpo-test-wml-2", wml.getModelHref(model_id, false),"S",1);
-        LOGGER.info("deployment_id = "+ deployment_id);
-
-        return deployment_id;
-    }
-
     public String createAndDeployEmptyCPLEXModel(WMLConnector wml) {
-        return createAndDeployEmptyCPLEXModel(wml, 1);
+        return createAndDeployEmptyModel(wml, WMLConnector.ModelType.CPLEX_12_9, WMLConnector.TShirtSize.S, 1);
     }
 
     public String createAndDeployEmptyCPLEXModel(WMLConnector wml, int nodes) {
+        return createAndDeployEmptyModel(wml, WMLConnector.ModelType.CPLEX_12_9, WMLConnector.TShirtSize.S, nodes);
+    }
 
-        LOGGER.info("Create Empty CPLEX Model");
+    public String createAndDeployEmptyModel(WMLConnector wml, WMLConnector.ModelType type, WMLConnector.TShirtSize size, int nodes) {
 
-        String model_id = wml.createNewModel("EmptyCPLEXModel","do-cplex_12.9", null);
+        LOGGER.info("Create Empty " + type + " Model");
+
+        String model_id = wml.createNewModel("EmptyCPLEXModel",type, null);
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("empty-cplex-test-wml-2", wml.getModelHref(model_id, false),"S",nodes);
+        String deployment_id = wml.deployModel("empty-cplex-test-wml-2", wml.getModelHref(model_id, false), size, nodes);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -148,11 +141,11 @@ public class Sample {
 
         LOGGER.info("Create Python Model");
 
-        String model_id = wml.createNewModel("Diet","do-docplex_12.10","src/resources/diet.zip", "/v4/runtimes/do_12.10");
+        String model_id = wml.createNewModel("Diet", WMLConnector.ModelType.DOCPLEX_12_10,"src/resources/diet.zip", WMLConnector.Runtime.DO_12_10);
         //String model_id = wml.createNewModel("Diet","do-docplex_12.9","src/resources/diet.zip", "/v4/runtimes/do_12.9");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("diet-test-wml-2", wml.getModelHref(model_id, false),"M",1);
+        String deployment_id = wml.deployModel("diet-test-wml-2", wml.getModelHref(model_id, false),WMLConnector.TShirtSize.M,1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -216,7 +209,25 @@ public class Sample {
         deleteDeployment(wml, deployment_id);
     }
 
-    public void parallelFullLPInlineFLow(String filename, int nodes, int nJobs) {
+    public void deleteLPJob(String filename) {
+        LOGGER.info("Create and authenticate WML Connector");
+        WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
+        String deployment_id = createAndDeployEmptyCPLEXModel(wml);
+
+        COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
+        cos.putFile(filename, "src/resources/"+filename);
+        JSONArray input_data_references = new JSONArray();
+        input_data_references.put(cos.getDataReferences(filename));
+        JSONArray output_data_references = new JSONArray();
+        output_data_references.put(cos.getDataReferences("solution.json"));
+        output_data_references.put(cos.getDataReferences("log.txt"));
+
+        WMLJob job = wml.createJob(deployment_id, null, input_data_references, null, output_data_references);
+        job.delete();
+        deleteDeployment(wml, deployment_id);
+    }
+
+    public void parallelFullLPInlineFlow(String filename, int nodes, int nJobs) {
 
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
         String deployment_id = createAndDeployEmptyCPLEXModel(wml, nodes);
@@ -377,10 +388,10 @@ public class Sample {
 
         LOGGER.info("Create Warehouse OPL Model");
 
-        String model_id = wml.createNewModel("Warehouse","do-opl_12.9","src/resources/warehouse.zip");
+        String model_id = wml.createNewModel("Warehouse", WMLConnector.ModelType.OPL_12_9,"src/resources/warehouse.zip");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("warehouse-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("warehouse-opl-test-wml-2", wml.getModelHref(model_id, false), WMLConnector.TShirtSize.S,1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -418,10 +429,10 @@ public class Sample {
 
         LOGGER.info("Create Diet OPL Model");
 
-        String model_id = wml.createNewModel("Diet OPL","do-opl_12.9","src/resources/dietopl.zip");
+        String model_id = wml.createNewModel("Diet OPL", WMLConnector.ModelType.OPL_12_9,"src/resources/dietopl.zip");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("diet-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("diet-opl-test-wml-2", wml.getModelHref(model_id, false), WMLConnector.TShirtSize.S,1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -431,10 +442,10 @@ public class Sample {
 
         LOGGER.info("Create Diet Main OPL Model");
 
-        String model_id = wml.createNewModel("Diet Main OPL","do-opl_12.9","src/resources/dietoplmain.zip");
+        String model_id = wml.createNewModel("Diet Main OPL", WMLConnector.ModelType.OPL_12_9,"src/resources/dietoplmain.zip");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("diet-main-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("diet-main-opl-test-wml-2", wml.getModelHref(model_id, false), WMLConnector.TShirtSize.S,1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         return deployment_id;
@@ -541,10 +552,10 @@ public class Sample {
 
         WMLConnectorImpl wml = new WMLConnectorImpl(Credentials.WML_URL, Credentials.WML_INSTANCE_ID, Credentials.WML_APIKEY);
 
-        String model_id = wml.createNewModel("JSON Test OPL","do-opl_12.9","src/resources/jsontest.zip");
+        String model_id = wml.createNewModel("JSON Test OPL", WMLConnector.ModelType.OPL_12_9,"src/resources/jsontest.zip");
         LOGGER.info("model_id = "+ model_id);
 
-        String deployment_id = wml.deployModel("json-test-opl-test-wml-2", wml.getModelHref(model_id, false),"S",1);
+        String deployment_id = wml.deployModel("json-test-opl-test-wml-2", wml.getModelHref(model_id, false), WMLConnector.TShirtSize.S,1);
         LOGGER.info("deployment_id = "+ deployment_id);
 
         COSConnector cos = new COSConnectorImpl(Credentials.COS_ENDPOINT, Credentials.COS_APIKEY, Credentials.COS_BUCKET, Credentials.COS_ACCESS_KEY_ID, Credentials.COS_SECRET_ACCESS_KEY);
@@ -605,7 +616,7 @@ public class Sample {
 
 
         // Python
-        //main.fullDietPythonFlow(false, 20);
+        //main.fullDietPythonFlow(false, 100);
 
         // OPL
         //main.fullWarehouseOPLFlow(true);
@@ -618,12 +629,12 @@ public class Sample {
         //KO main.fullInfeasibleDietOPLFlow();
 
         // CPLEX
-//        main.fullLPFLow("diet.lp");
+        main.fullLPFLow("diet.lp");
 
-        //main.fullLPInlineFLow("diet.lp", 20 );
-        //main.parallelFullLPInlineFLow("diet.lp", 5, 20 );
+        //main.fullLPInlineFLow("diet.lp", 100 );
+        //main.parallelFullLPInlineFLow("diet.lp", 5, 100 );
         //main.fullLPInlineFLow("acc-tight4.lp", 20 );
-        main.parallelFullLPInlineFLow("acc-tight4.lp", 5, 20 );
+        //main.parallelFullLPInlineFlow("acc-tight4.lp", 5, 100 );
 
 //        main.fullInfeasibleLPFLow();
 
@@ -633,5 +644,7 @@ public class Sample {
         //main.runCPO("colors");
         //main.runCPO("plant_location");
 
+        // Other
+        //main.deleteLPJob("diet.lp");
     }
 }

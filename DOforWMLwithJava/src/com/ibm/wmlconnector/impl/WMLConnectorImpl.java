@@ -133,6 +133,23 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
             }
             return null;
         }
+
+        @Override
+        public void delete() {
+            try {
+
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Accept", "application/json");
+                headers.put("Authorization", "bearer " + bearerToken);
+                headers.put("ML-Instance-ID", instance_id);
+                headers.put("cache-control", "no-cache");
+
+                doDelete(url + "/v4/jobs/" + job_id + "?hard_delete=true", headers);
+
+            } catch (JSONException e) {
+                LOGGER.severe("Error updateStatus: " + e);
+            }
+        }
     }
 
     @Override
@@ -273,11 +290,12 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
     }
 
     @Override
-    public String createNewModel(String modelName, String type, String modelAssetFilePath) {
-        return this.createNewModel(modelName, type, modelAssetFilePath, "/v4/runtimes/do_12.10");
+    public String createNewModel(String modelName, ModelType type, String modelAssetFilePath) {
+        return this.createNewModel(modelName, type, modelAssetFilePath, WMLConnector.Runtime.DO_12_10);
     }
+
     @Override
-    public String createNewModel(String modelName, String type, String modelAssetFilePath, String runtime) {
+    public String createNewModel(String modelName, ModelType type, String modelAssetFilePath, Runtime runtime) {
 
         String iamToken = getBearerToken();
         String modelId = null;
@@ -333,7 +351,7 @@ public class WMLConnectorImpl extends ConnectorImpl implements WMLConnector {
     }
 
     @Override
-    public String deployModel(String deployName, String modelHref, String size, int nodes) {
+    public String deployModel(String deployName, String modelHref, TShirtSize size, int nodes) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", "bearer " + bearerToken);

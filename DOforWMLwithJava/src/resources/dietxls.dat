@@ -1,7 +1,0 @@
-SheetConnection sheet("diet.xlsx");
-
-diet_food from SheetRead(sheet,"'diet_food'!A2:D10");
-
-diet_nutrients from SheetRead(sheet,"'diet_nutrients'!A2:C8");
-
-diet_food_nutrients from SheetRead(sheet,"'diet_food_nutrients'!A2:H10");

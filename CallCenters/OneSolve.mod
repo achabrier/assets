@@ -122,7 +122,6 @@ execute {
 }
 
 RttPlan RttPlanArray[ r in rttPlans ] = r; 
-//RttDay  RttDayArray[r in rttDays] = r;
 
 float  NbHoursPerWeek[r in resources] = RttPlanArray[<r.rttId>].halfHours / RttPlanArray[<r.rttId>].weekNo; 
 int firstWeek = first(OriginalWeeks);
@@ -133,7 +132,7 @@ int plannedWeekNo = 1; // On ne planifie qu'un week a la fois (depuis le handleW
  
 int remainingWeek = weekNo - handleWeek;
 
-// Ne prendre les slots que sur les semaine � planifiers
+// Only take slot form week to plan
 sorted {TCallObjectSlot} CallObjectSlots = 
     { <o.objectId, o.week, o.dayIndex, o.timeSlotIndex, o.duration, d.numberCalls> |                                   
        o in callHistoryDuration,
@@ -233,7 +232,7 @@ int consumedSlotNumber[r in resources] = sum ( ra in  consumedDaysPerResource[r]
 {ResourceAbsenceModel} AfternoonAbsencePerResource[ r in resources ] = { a | a in  resourceAbsenceModel : a.resourceId == r.id && a.partOfDayValue == 1 };
 
 {string} ResourceIds = { r.id | r in resources };
-// les ressources qui n'ont pas de recuperation le samedi ne travaillent pas le samedi
+// Resources that cannot recover on Saturday don't work on Saturday
 {string} NotSaturdayResourceId = ResourceIds diff { r.resourceId | r in resourceRecoveries};
 
 {string} ResourcesIdsWithAbsences = { r.resourceId | r in resourceAbsenceModel};
@@ -472,9 +471,9 @@ dexpr int SaturdayMorningShiftVar[r in resRecoveries] = sum (a in ArrayMorningSh
 // Cost function
 //    slackLoad 		  : slack between load and coverage
 //    slackWeekLowerUpper : slack between weekly number of hours
-//    slackSaturday  	  : slack on staurday fairness
+//    slackSaturday  	  : slack on Saturday fairness
 //    slackPresence  	  : slack on at least 2 agens per slot and call type
-//    slackWeekType  	  : slack with respcte to typical week
+//    slackWeekType  	  : slack with respect to typical week
 
 minimize slackLoad + slackWeekLowerUpper + slackSaturday + slackPresence + slackWeekType
      				+ favoredCallObject.favorFactor * slackFavoredCallObject ; 

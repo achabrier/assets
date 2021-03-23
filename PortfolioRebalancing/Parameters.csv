@@ -1,0 +1,8 @@
+name,value
+Tolerance,3
+UpperLimit,22
+LowerLimit,5
+CashTotal,846449.2
+TransactionCostPercentage,1.45
+MaxChanges,5
+FixedFee,10

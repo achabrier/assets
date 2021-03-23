@@ -1,0 +1,975 @@
+{
+  "name": "Dashboard",
+  "locked": false,
+  "filter": "",
+  "activePage": 5,
+  "pages": [
+    {
+      "id": "dfc50b7c-f517-435d-ada6-1af4ced22798",
+      "name": "Assets",
+      "filter": "",
+      "widgets": {
+        "d152f1f8-d41f-48c6-8135-ff5d1411b423": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "Assets",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "company_name",
+                  "label": "company_name",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "name",
+                  "label": "name",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "type",
+                  "label": "type",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "recomNote",
+                  "label": "recomNote",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "currency",
+                  "label": "currency",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "years",
+                  "label": "years",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "price",
+                  "label": "price",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "d152f1f8-d41f-48c6-8135-ff5d1411b423",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "d152f1f8-d41f-48c6-8135-ff5d1411b423",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 4,
+            "h": 5,
+            "x": 0,
+            "y": 0,
+            "i": "d152f1f8-d41f-48c6-8135-ff5d1411b423",
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "58d0fa1c-5670-4baa-9eaf-a70715f50311",
+      "name": "Initial Portfolio",
+      "filter": "",
+      "widgets": {
+        "ca58237f-a3d0-4e32-bce0-88ada3d23131": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "InitialQuantities",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "asset",
+                  "label": "asset",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "quantity",
+                  "label": "quantity",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        },
+        "fd044994-2ce5-43dd-bcf1-0d6160db43ed": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "InitialPortfolio",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "pie",
+                "categoriesField": "company_name",
+                "summaryMethod": "sum",
+                "valuesField": "amount",
+                "pieStyle": "roseRing",
+                "showValue": false,
+                "legendOrient": "horizontal",
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "company_name",
+                "amount"
+              ]
+            },
+            "search": ""
+          }
+        },
+        "a7499fcc-1f2c-463f-99c7-3a8fdc288327": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "InitialPortfolio",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "pie",
+                "categoriesField": "industry",
+                "pieStyle": "roseRing",
+                "legendOrient": "horizontal",
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "industry"
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "ca58237f-a3d0-4e32-bce0-88ada3d23131",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "fd044994-2ce5-43dd-bcf1-0d6160db43ed",
+            "x": 0,
+            "y": 2,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "a7499fcc-1f2c-463f-99c7-3a8fdc288327",
+            "x": 0,
+            "y": 6,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "ca58237f-a3d0-4e32-bce0-88ada3d23131",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "fd044994-2ce5-43dd-bcf1-0d6160db43ed",
+            "x": 0,
+            "y": 2,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "a7499fcc-1f2c-463f-99c7-3a8fdc288327",
+            "x": 0,
+            "y": 6,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 1,
+            "h": 5,
+            "x": 0,
+            "y": 0,
+            "i": "ca58237f-a3d0-4e32-bce0-88ada3d23131",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 3,
+            "h": 5,
+            "x": 1,
+            "y": 0,
+            "i": "fd044994-2ce5-43dd-bcf1-0d6160db43ed",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 2,
+            "h": 5,
+            "x": 4,
+            "y": 0,
+            "i": "a7499fcc-1f2c-463f-99c7-3a8fdc288327",
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "52ef0b4d-900d-4833-9a0c-df59424e758c",
+      "name": "Parameters",
+      "filter": "",
+      "widgets": {
+        "f908a469-4f77-474c-a175-e25db85eb5a8": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "Parameters",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "name",
+                  "label": "name",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "value",
+                  "label": "value",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        },
+        "4c74b2bb-19f2-4bda-bd63-54a654bdd83e": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "PercentsCash",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "currency",
+                  "label": "currency",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "value",
+                  "label": "value",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        },
+        "ca061110-627f-412f-b7bd-bbec9d8c35b6": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "PercentsIndustries",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "industry",
+                  "label": "industry",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "value",
+                  "label": "value",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "f908a469-4f77-474c-a175-e25db85eb5a8",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "4c74b2bb-19f2-4bda-bd63-54a654bdd83e",
+            "x": 0,
+            "y": 2,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "ca061110-627f-412f-b7bd-bbec9d8c35b6",
+            "x": 0,
+            "y": 4,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "f908a469-4f77-474c-a175-e25db85eb5a8",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "4c74b2bb-19f2-4bda-bd63-54a654bdd83e",
+            "x": 0,
+            "y": 2,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "ca061110-627f-412f-b7bd-bbec9d8c35b6",
+            "x": 0,
+            "y": 4,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 2,
+            "h": 3,
+            "x": 0,
+            "y": 2,
+            "i": "f908a469-4f77-474c-a175-e25db85eb5a8",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 1,
+            "h": 2,
+            "x": 0,
+            "y": 0,
+            "i": "4c74b2bb-19f2-4bda-bd63-54a654bdd83e",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 2,
+            "h": 3,
+            "x": 2,
+            "y": 0,
+            "i": "ca061110-627f-412f-b7bd-bbec9d8c35b6",
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "fa71094e-0da8-4989-b76f-46838c29259c",
+      "name": "Final Portfolio",
+      "filter": "",
+      "widgets": {
+        "ddb28f42-db0e-4b7a-9cef-666d9a98bdcf": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "FinalQuantities",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "asset",
+                  "label": "asset",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "quantity",
+                  "label": "quantity",
+                  "type": "Number",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        },
+        "586895d7-1589-4505-ae29-e43940ea30b0": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "FinalPortfolio",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "pie",
+                "categoriesField": "company_name",
+                "summaryMethod": "sum",
+                "valuesField": "amount",
+                "pieStyle": "roseRing",
+                "legendOrient": "horizontal",
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "company_name",
+                "amount"
+              ]
+            },
+            "search": ""
+          }
+        },
+        "355bbfb6-9969-43fe-9f42-ef45c7bfa6a4": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "FinalPortfolio",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "pie",
+                "categoriesField": "industry",
+                "summaryMethod": "sum",
+                "valuesField": "amount",
+                "pieStyle": "roseRing",
+                "legendOrient": "horizontal",
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "industry",
+                "amount"
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "ddb28f42-db0e-4b7a-9cef-666d9a98bdcf",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "586895d7-1589-4505-ae29-e43940ea30b0",
+            "x": 0,
+            "y": 2,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "355bbfb6-9969-43fe-9f42-ef45c7bfa6a4",
+            "x": 0,
+            "y": 6,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "ddb28f42-db0e-4b7a-9cef-666d9a98bdcf",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "586895d7-1589-4505-ae29-e43940ea30b0",
+            "x": 0,
+            "y": 2,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "355bbfb6-9969-43fe-9f42-ef45c7bfa6a4",
+            "x": 0,
+            "y": 6,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 1,
+            "h": 5,
+            "x": 0,
+            "y": 0,
+            "i": "ddb28f42-db0e-4b7a-9cef-666d9a98bdcf",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 3,
+            "h": 5,
+            "x": 1,
+            "y": 0,
+            "i": "586895d7-1589-4505-ae29-e43940ea30b0",
+            "moved": false,
+            "static": false
+          },
+          {
+            "w": 2,
+            "h": 5,
+            "x": 4,
+            "y": 0,
+            "i": "355bbfb6-9969-43fe-9f42-ef45c7bfa6a4",
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "5deb9d18-ed86-46f8-bd8f-8de58738322f",
+      "name": "KPIs",
+      "filter": "",
+      "widgets": {
+        "77afb377-ab21-476f-9db0-fb881a32f237": {
+          "name": "",
+          "type": "Table",
+          "props": {
+            "container": "",
+            "data": "kpis",
+            "spec": {
+              "numbered": true,
+              "compact": true,
+              "columnExpand": true,
+              "columnShrink": false,
+              "columnWidth": 0,
+              "sortOrder": [],
+              "columns": [
+                {
+                  "property": "Name",
+                  "label": "Name",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                },
+                {
+                  "property": "Value",
+                  "label": "Value",
+                  "type": "String",
+                  "visible": true,
+                  "width": 0,
+                  "style": {}
+                }
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "77afb377-ab21-476f-9db0-fb881a32f237",
+            "x": 0,
+            "y": 2,
+            "w": 1,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "77afb377-ab21-476f-9db0-fb881a32f237",
+            "x": 0,
+            "y": 2,
+            "w": 3,
+            "h": 2,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 3,
+            "h": 4,
+            "x": 0,
+            "y": 0,
+            "i": "77afb377-ab21-476f-9db0-fb881a32f237",
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "bb7b17c5-e97e-49b2-8145-5a280a5adffc",
+      "name": "Rebalancing",
+      "filter": "",
+      "widgets": {
+        "4c8bbe57-a263-4b3c-a214-dbd3c3b3d8ab": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "AssetResults",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "multiseries",
+                "x": "asset.company_name",
+                "multiSeriesFields": [
+                  {
+                    "name": "valueBefore",
+                    "type": "bar"
+                  },
+                  {
+                    "name": "valueAfter",
+                    "type": "bar"
+                  }
+                ],
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "gridLines": true,
+                "zoomSlider": false,
+                "mouseTracker": false,
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "asset.company_name",
+                "valueBefore",
+                "valueAfter"
+              ]
+            },
+            "search": ""
+          }
+        },
+        "a8ce9899-581b-4f79-b34b-4e5c08b78fa2": {
+          "name": "",
+          "type": "ECharts",
+          "props": {
+            "container": "",
+            "data": "CashResults",
+            "spec": {
+              "editor": false,
+              "width": "100%",
+              "height": "100%",
+              "padding": 0,
+              "theme": "ibm_default",
+              "chartSettings": {
+                "type": "multiseries",
+                "x": "currency.value",
+                "multiSeriesFields": [
+                  {
+                    "name": "valueBefore",
+                    "type": "bar"
+                  },
+                  {
+                    "name": "valueAfter",
+                    "type": "bar"
+                  }
+                ],
+                "filterNullValue": false,
+                "showARIA": false,
+                "showToolbox": true,
+                "theme": "ibm_default",
+                "gridLines": true,
+                "zoomSlider": false,
+                "mouseTracker": false,
+                "__version": "2.4"
+              },
+              "showValueLabels": false,
+              "usedFields": [
+                "currency.value",
+                "valueBefore",
+                "valueAfter"
+              ]
+            },
+            "search": ""
+          }
+        }
+      },
+      "layouts": {
+        "SM": [
+          {
+            "i": "4c8bbe57-a263-4b3c-a214-dbd3c3b3d8ab",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "a8ce9899-581b-4f79-b34b-4e5c08b78fa2",
+            "x": 0,
+            "y": 4,
+            "w": 1,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "MD": [
+          {
+            "i": "4c8bbe57-a263-4b3c-a214-dbd3c3b3d8ab",
+            "x": 0,
+            "y": 0,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "a8ce9899-581b-4f79-b34b-4e5c08b78fa2",
+            "x": 0,
+            "y": 4,
+            "w": 2,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ],
+        "LG": [
+          {
+            "w": 6,
+            "h": 4,
+            "x": 0,
+            "y": 0,
+            "i": "4c8bbe57-a263-4b3c-a214-dbd3c3b3d8ab",
+            "moved": false,
+            "static": false
+          },
+          {
+            "i": "a8ce9899-581b-4f79-b34b-4e5c08b78fa2",
+            "x": 0,
+            "y": 4,
+            "w": 4,
+            "h": 4,
+            "moved": false,
+            "static": false
+          }
+        ]
+      }
+    }
+  ],
+  "breakpoints": [
+    {
+      "name": "SM",
+      "width": 0,
+      "columns": 1
+    },
+    {
+      "name": "MD",
+      "width": 480,
+      "columns": 3
+    },
+    {
+      "name": "LG",
+      "width": 960,
+      "columns": 6
+    }
+  ],
+  "rowHeight": 120,
+  "extensions": []
+}

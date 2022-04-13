@@ -1,0 +1,17 @@
+Name,Value
+cplex.size.integerVariables,0
+cplex.size.continousVariables,1848
+cplex.size.linearConstraints,15349
+cplex.size.booleanVariables,5040
+cplex.size.constraints,15349
+cplex.size.quadraticConstraints,0
+cplex.size.variables,6888
+cplex.modelType,MILP
+job.coresCount,1
+job.inputsReadMs,935
+job.memoryPeakKB,159400
+cplex.solve.explored,0
+cplex.solve.opened,1
+cplex.solve.iterationCount,2307
+cplex.solve.elapsedTime,0.43683815002441406
+job.modelProcessingMs,2509

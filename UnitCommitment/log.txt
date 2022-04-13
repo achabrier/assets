@@ -1,0 +1,97 @@
+[2022-04-07T10:23:32Z, WARNING] Support for Python 3.8 is now enabled with pandas 1.2.4 libraries.
+[2022-04-07T10:23:32Z, INFO]                         value
+[2022-04-07T10:23:32Z, INFO] Units  UnitProperties        
+[2022-04-07T10:23:32Z, INFO] COAL_1 init_prod_level  400.0
+[2022-04-07T10:23:32Z, INFO] COAL_2 init_prod_level  350.0
+[2022-04-07T10:23:32Z, INFO] GAS_1  init_prod_level  205.0
+[2022-04-07T10:23:32Z, INFO] GAS_2  init_prod_level   52.0
+[2022-04-07T10:23:32Z, INFO] GAS_3  init_prod_level  155.0
+[2022-04-07T10:23:32Z, INFO]           value
+[2022-04-07T10:23:32Z, INFO] Periods        
+[2022-04-07T10:23:32Z, INFO] Mon-00   1196.0
+[2022-04-07T10:23:32Z, INFO] Mon-01   1193.0
+[2022-04-07T10:23:32Z, INFO] Mon-02   1191.0
+[2022-04-07T10:23:32Z, INFO] Mon-03   1193.0
+[2022-04-07T10:23:32Z, INFO] Mon-04   1207.0
+[2022-04-07T10:23:32Z, INFO]          Max  Price
+[2022-04-07T10:23:32Z, INFO] Periods            
+[2022-04-07T10:23:32Z, INFO] Mon-00   100     60
+[2022-04-07T10:23:32Z, INFO] Mon-01   100     60
+[2022-04-07T10:23:32Z, INFO] Mon-02   100     60
+[2022-04-07T10:23:32Z, INFO] Mon-03   100     60
+[2022-04-07T10:23:32Z, INFO] Mon-04   100     60
+[2022-04-07T10:23:34Z, INFO] WARNING: Number of workers has been reduced to 1 to comply with platform limitations.
+[2022-04-07T10:23:34Z, INFO] Version identifier: 20.1.0.1 | 2021-12-07 | 9dfdf6686
+[2022-04-07T10:23:34Z, INFO] CPXPARAM_Read_DataCheck                          1
+[2022-04-07T10:23:34Z, INFO] CPXPARAM_Threads                                 1
+[2022-04-07T10:23:34Z, INFO] Legacy callback                                  i
+[2022-04-07T10:23:34Z, INFO] Tried aggregator 2 times.
+[2022-04-07T10:23:34Z, INFO] MIP Presolve eliminated 3584 rows and 553 columns.
+[2022-04-07T10:23:34Z, INFO] MIP Presolve modified 1480 coefficients.
+[2022-04-07T10:23:34Z, INFO] Aggregator did 9 substitutions.
+[2022-04-07T10:23:34Z, INFO] Reduced MIP has 11756 rows, 6326 columns, and 36950 nonzeros.
+[2022-04-07T10:23:34Z, INFO] Reduced MIP has 4478 binaries, 0 generals, 0 SOSs, and 0 indicators.
+[2022-04-07T10:23:34Z, INFO] Presolve time = 0.06 sec. (36.44 ticks)
+[2022-04-07T10:23:34Z, INFO] Found incumbent of value 4.6092785e+09 after 0.09 sec. (53.76 ticks)
+[2022-04-07T10:23:34Z, INFO] Probing fixed 15 vars, tightened 0 bounds.
+[2022-04-07T10:23:34Z, INFO] Probing time = 0.05 sec. (19.72 ticks)
+[2022-04-07T10:23:34Z, INFO] Tried aggregator 1 time.
+[2022-04-07T10:23:34Z, INFO] Detecting symmetries...
+[2022-04-07T10:23:34Z, INFO] MIP Presolve eliminated 18 rows and 15 columns.
+[2022-04-07T10:23:34Z, INFO] Reduced MIP has 11738 rows, 6311 columns, and 36804 nonzeros.
+[2022-04-07T10:23:34Z, INFO] Reduced MIP has 4463 binaries, 0 generals, 0 SOSs, and 0 indicators.
+[2022-04-07T10:23:34Z, INFO] Presolve time = 0.04 sec. (24.45 ticks)
+[2022-04-07T10:23:34Z, INFO] Probing time = 0.01 sec. (3.66 ticks)
+[2022-04-07T10:23:34Z, INFO] Clique table members: 20398.
+[2022-04-07T10:23:34Z, INFO] MIP emphasis: balance optimality and feasibility.
+[2022-04-07T10:23:34Z, INFO] MIP search method: dynamic search.
+[2022-04-07T10:23:34Z, INFO] Parallel mode: none, using 1 thread.
+[2022-04-07T10:23:34Z, INFO] Root relaxation solution time = 0.03 sec. (33.26 ticks)
+[2022-04-07T10:23:34Z, INFO] 
+[2022-04-07T10:23:34Z, INFO]         Nodes                                         Cuts/
+[2022-04-07T10:23:34Z, INFO]    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+[2022-04-07T10:23:34Z, INFO] 
+[2022-04-07T10:23:34Z, INFO] *     0+    0                       4.60928e+09   1.19301e+09            74.12%
+[2022-04-07T10:23:34Z, INFO]       0     0   2.53574e+09   225   4.60928e+09   2.53574e+09     2075   44.99%
+[2022-04-07T10:23:34Z, INFO] *     0+    0                       2.53732e+09   2.53574e+09             0.06%
+[2022-04-07T10:23:34Z, INFO]       0     0   2.53581e+09    12   2.53732e+09     Cuts: 305     2307    0.06%
+[2022-04-07T10:23:34Z, INFO] *     0+    0                       2.53581e+09   2.53581e+09             0.00%
+[2022-04-07T10:23:34Z, INFO] 
+[2022-04-07T10:23:34Z, INFO] Implied bound cuts applied:  43
+[2022-04-07T10:23:34Z, INFO] Flow cuts applied:  6
+[2022-04-07T10:23:34Z, INFO] Mixed integer rounding cuts applied:  127
+[2022-04-07T10:23:34Z, INFO] Lift and project cuts applied:  1
+[2022-04-07T10:23:34Z, INFO] Gomory fractional cuts applied:  60
+[2022-04-07T10:23:34Z, INFO] 
+[2022-04-07T10:23:34Z, INFO] Root node processing (before b&c):
+[2022-04-07T10:23:34Z, INFO]   Real time             =    0.47 sec. (289.22 ticks)
+[2022-04-07T10:23:34Z, INFO] Sequential b&c:
+[2022-04-07T10:23:34Z, INFO]   Real time             =    0.00 sec. (0.00 ticks)
+[2022-04-07T10:23:34Z, INFO]                           ------------
+[2022-04-07T10:23:34Z, INFO] Total (root+branch&cut) =    0.47 sec. (289.22 ticks)
+[2022-04-07T10:23:34Z, INFO]   Feasible 2535806367.294903
+[2022-04-07T10:23:34Z, INFO]     Periods  Baseline
+[2022-04-07T10:23:34Z, INFO] 0    Mon-00     100.0
+[2022-04-07T10:23:34Z, INFO] 1    Mon-01     100.0
+[2022-04-07T10:23:34Z, INFO] 2    Mon-02     100.0
+[2022-04-07T10:23:34Z, INFO] 3    Mon-03     100.0
+[2022-04-07T10:23:34Z, INFO] 4    Mon-04     100.0
+[2022-04-07T10:23:34Z, INFO] ..      ...       ...
+[2022-04-07T10:23:34Z, INFO] 163  Sun-19     100.0
+[2022-04-07T10:23:34Z, INFO] 164  Sun-20     100.0
+[2022-04-07T10:23:34Z, INFO] 165  Sun-21     100.0
+[2022-04-07T10:23:34Z, INFO] 166  Sun-22     100.0
+[2022-04-07T10:23:34Z, INFO] 167  Sun-23     100.0
+[2022-04-07T10:23:34Z, INFO] 
+[2022-04-07T10:23:34Z, INFO] [168 rows x 2 columns]
+[2022-04-07T10:23:34Z, INFO]                    kpi      Baseline
+[2022-04-07T10:23:34Z, INFO] 0     Total Fixed Cost  1.470620e+05
+[2022-04-07T10:23:34Z, INFO] 1  Total Variable Cost  1.022790e+07
+[2022-04-07T10:23:34Z, INFO] 2   Total Startup Cost  3.404000e+03
+[2022-04-07T10:23:34Z, INFO] 3       Total CO2 Cost  2.524420e+06
+[2022-04-07T10:23:34Z, INFO] 4  Total Exchange Cost  1.008000e+06
+[2022-04-07T10:23:34Z, INFO] production.csv
+[2022-04-07T10:23:34Z, INFO] exchanged.csv
+[2022-04-07T10:23:34Z, INFO] used.csv
+[2022-04-07T10:23:34Z, INFO] started.csv
+[2022-04-07T10:23:34Z, INFO] kpi.csv

@@ -1,0 +1,5 @@
+Weights,Baseline
+fixed_cost,1.0
+variable_cost,1.0
+startup_cost,1.0
+co2_cost,1000.0
